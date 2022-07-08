@@ -1,0 +1,30 @@
+@startuml Subject schema
+
+' hide Entity
+hide circle
+skinparam linetype ortho
+
+
+entity "Subject" as subject {
+  subjectId : uint256
+  --
+  name : string
+}
+
+entity "Authorized Professor" as authProf {
+  profId: address
+}
+
+entity "Test" as test {
+  testIdx: uint8
+  --
+  name : string
+  expiresIn : uint256
+  isOptional : bool
+  dependencies : uint256[]
+}
+
+subject ||--o{ test
+authProf }o--o{ subject
+
+@enduml
