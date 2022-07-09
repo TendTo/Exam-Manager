@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 interface IExamContract {
-
     struct StudentMark {
         uint256 studentId;
         uint8 mark;
@@ -28,8 +27,8 @@ interface IExamContract {
         uint256 expiration;
     }
 
-    struct StudentCareer{
-        uint studentId;
+    struct StudentCareer {
+        uint256 studentId;
         //SubjectID -> SubjectResults
         mapping(uint256 => SubjectResults) subjectResults;
     }
@@ -37,8 +36,12 @@ interface IExamContract {
     struct SubjectResults {
         uint8 mark;
         bool accepted;
-        TestResult[] testResults;
+        mapping(uint8 => TestResult) testResults;
     }
+
+    error UnauthorizedProfessorError(uint256 subjectId, address unauthorizedAddr);
+    error UnauthorizedAdminError(address admin, address unauthorizedAdmin);
+    error TestDoesNotExistsError(uint256 subjectId, uint8 testIdx);
 
     function addStudent(address addr, uint256 id) external;
 
@@ -55,13 +58,13 @@ interface IExamContract {
 
     function addAuthorizedProf(uint256 subjectId, address profAddr) external;
 
-    function removeAuthorizedProf(uint256 subjectId,address profAddr) external;
+    function removeAuthorizedProf(uint256 subjectId, address profAddr) external;
 
-    function isProfAuthorized(uint256 subjectId,address profAddr) external view returns (bool);
+    function isProfAuthorized(uint256 subjectId, address profAddr) external view returns (bool);
 
     function setSubjectTests(uint256 subjectId, Test[] calldata tests) external;
 
-    function getSubjectTests(uint256 subjectId) external view returns(Test[] memory);
+    function getSubjectTests(uint256 subjectId) external view returns (Test[] memory);
 
     function registerTestResults(
         uint8 subjectId,
@@ -69,10 +72,8 @@ interface IExamContract {
         StudentMark[] calldata testResults
     ) external;
 
-    function registerSubjectResults(
-        uint8 subjectId,
-        StudentMark[] calldata subjectResults
-    ) external;
+    function registerSubjectResults(uint8 subjectId, StudentMark[] calldata subjectResults)
+        external;
 
     function acceptTestResult(uint8 subjectId, uint8 testIdx) external;
 
@@ -81,4 +82,8 @@ interface IExamContract {
     function acceptSubjectResult(uint8 subjectId) external;
 
     function rejectSubjectResult(uint8 subjectId) external;
+
+    function getTestMark(uint8 subjectId, uint8 testIdx) external view returns (uint8, bool);
+
+    function getSubjectMark(uint8 subjectId) external view returns (uint8, bool);
 }

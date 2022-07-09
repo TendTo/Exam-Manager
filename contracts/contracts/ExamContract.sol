@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./IExamContract.sol";
 
 contract ExamContract is IExamContract {
-    address immutable public admin;
+    address public immutable admin;
 
     mapping(uint256 => Subject) public subjects;
     mapping(address => uint256) public studentIds;
@@ -16,16 +16,27 @@ contract ExamContract is IExamContract {
     }
 
     modifier onlyAdmin() {
-        require(msg.sender == admin);
+        if (msg.sender != admin) revert UnauthorizedAdminError(admin, msg.sender);
         _;
     }
 
     modifier isAuthorizedProf(uint256 subjectId) {
-        require(subjects[subjectId].authorizedProf[msg.sender]);
+        if (!subjects[subjectId].authorizedProf[msg.sender])
+            revert UnauthorizedProfessorError(subjectId, msg.sender);
         _;
     }
 
-    function getTestResult(uint256 studentId, uint256 subjectId, uint8 testIdx) private view returns (TestResult storage) {
+    modifier testExists(uint256 subjectId, uint8 testIdx) {
+        if (testIdx >= subjects[subjectId].tests.length)
+            revert TestDoesNotExistsError(subjectId, testIdx);
+        _;
+    }
+
+    function getTestResult(
+        uint256 studentId,
+        uint256 subjectId,
+        uint8 testIdx
+    ) private view returns (TestResult storage) {
         return careers[studentId].subjectResults[subjectId].testResults[testIdx];
     }
 
@@ -53,37 +64,40 @@ contract ExamContract is IExamContract {
         delete subjects[subjectId];
     }
 
-    function addAuthorizedProf(uint256 subjectId,address profAddr) external onlyAdmin {
+    function addAuthorizedProf(uint256 subjectId, address profAddr) external onlyAdmin {
         subjects[subjectId].authorizedProf[profAddr] = true;
     }
 
-    function removeAuthorizedProf(uint256 subjectId,address profAddr) external onlyAdmin {
+    function removeAuthorizedProf(uint256 subjectId, address profAddr) external onlyAdmin {
         subjects[subjectId].authorizedProf[profAddr] = false;
     }
 
-    function isProfAuthorized(uint256 subjectId,address profAddr) external view returns (bool) {
+    function isProfAuthorized(uint256 subjectId, address profAddr) external view returns (bool) {
         return subjects[subjectId].authorizedProf[profAddr];
     }
 
-    function setSubjectTests(uint256 subjectId, Test[] calldata tests) external isAuthorizedProf(subjectId)
+    function setSubjectTests(uint256 subjectId, Test[] calldata tests)
+        external
+        isAuthorizedProf(subjectId)
     {
-        for(uint i = 0; i< tests.length; i++) {
-            subjects[subjectId].tests[i] = tests[i];
+        Subject storage subject = subjects[subjectId];
+        delete subject.tests;
+        for (uint256 i = 0; i < tests.length; i++) {
+            subject.tests.push(tests[i]);
         }
-
     }
 
-    function getSubjectTests(uint256 subjectId)
-        external
-        view
-        returns (Test[] memory)
-    {
+    function getSubjectTests(uint256 subjectId) external view returns (Test[] memory) {
         return subjects[subjectId].tests;
     }
 
-    function checkTestDependencies(uint8 subjectId, uint8 testIdx,uint256 studentId) private view returns (bool) {
+    function checkTestDependencies(
+        uint8 subjectId,
+        uint8 testIdx,
+        uint256 studentId
+    ) private view returns (bool) {
         uint8[] storage deps = subjects[subjectId].tests[testIdx].testIdxRequired;
-        for (uint i = 0; i < deps.length; i++) {
+        for (uint256 i = 0; i < deps.length; i++) {
             if (!getTestResult(studentId, subjectId, deps[i]).accepted) {
                 return false;
             }
@@ -95,12 +109,12 @@ contract ExamContract is IExamContract {
         uint8 subjectId,
         uint8 testIdx,
         StudentMark[] calldata testResults
-    ) external isAuthorizedProf(subjectId) {
+    ) external isAuthorizedProf(subjectId) testExists(subjectId, testIdx) {
         uint256 expiration = block.timestamp + subjects[subjectId].tests[testIdx].expiresIn;
         for (uint256 i = 0; i < testResults.length; i++) {
             bool valid = checkTestDependencies(subjectId, testIdx, testResults[i].studentId);
             if (!valid) {
-                // Emit event student not authorized to take test
+                // TODO: Emit event student not authorized to take test
                 continue;
             }
             TestResult storage result = getTestResult(testResults[i].studentId, subjectId, testIdx);
@@ -110,13 +124,34 @@ contract ExamContract is IExamContract {
         }
     }
 
-    function registerSubjectResults(uint8 subjectId,StudentMark[] calldata subjectResults) external{}
+    function registerSubjectResults(uint8 subjectId, StudentMark[] calldata subjectResults)
+        external
+    {}
 
-    function acceptTestResult(uint8 subjectId, uint8 testIdx) external{}
+    function acceptTestResult(uint8 subjectId, uint8 testIdx) external {}
 
-    function rejectTestResult(uint8 subjectId, uint8 testIdx) external{}
+    function rejectTestResult(uint8 subjectId, uint8 testIdx) external {}
 
-    function acceptSubjectResult(uint8 subjectId) external{}
+    function acceptSubjectResult(uint8 subjectId) external {}
 
-    function rejectSubjectResult(uint8 subjectId) external{}
+    function rejectSubjectResult(uint8 subjectId) external {}
+
+    function getTestMark(uint8 subjectId, uint8 testIdx)
+        external
+        view
+        testExists(subjectId, testIdx)
+        returns (uint8, bool)
+    {
+        uint256 studentId = studentIds[msg.sender];
+        TestResult storage result = getTestResult(studentId, subjectId, testIdx);
+        return (result.mark, result.accepted);
+    }
+
+    function getSubjectMark(uint8 subjectId) external view returns (uint8, bool) {
+        uint256 studentId = studentIds[msg.sender];
+        return (
+            careers[studentId].subjectResults[subjectId].mark,
+            careers[studentId].subjectResults[subjectId].accepted
+        );
+    }
 }
