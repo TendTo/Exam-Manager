@@ -2,5 +2,26 @@
   "workspaces": [
     "contracts",
     "dapp"
-  ]
+  ],
+  "name": "exam-manager",
+  "description": "",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "npm test --prefix contracts",
+    "compile": "npm run compile --prefix contracts"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TendTo/Exam-Manager.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/TendTo/Exam-Manager/issues"
+  },
+  "homepage": "https://github.com/TendTo/Exam-Manager#readme"
 }
