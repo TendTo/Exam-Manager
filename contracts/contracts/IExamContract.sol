@@ -2,6 +2,13 @@
 pragma solidity ^0.8.0;
 
 interface IExamContract {
+    enum Status {
+        NoVote,
+        Pending,
+        Accepted,
+        Rejected
+    }
+
     struct StudentMark {
         uint256 studentId;
         uint8 mark;
@@ -23,7 +30,7 @@ interface IExamContract {
 
     struct TestResult {
         uint8 mark;
-        bool accepted;
+        Status testStatus;
         uint256 expiration;
     }
 
@@ -35,13 +42,20 @@ interface IExamContract {
 
     struct SubjectResults {
         uint8 mark;
-        bool accepted;
+        Status subjectStatus;
         mapping(uint8 => TestResult) testResults;
     }
 
     error UnauthorizedProfessorError(uint256 subjectId, address unauthorizedAddr);
     error UnauthorizedAdminError(address admin, address unauthorizedAdmin);
+
     error TestDoesNotExistsError(uint256 subjectId, uint8 testIdx);
+    error TestExpiredError(uint256 subjectId, uint8 testIdx, uint256 expiration);
+
+    error TestNotTakenError(uint256 subjectId, uint8 testIdx, uint256 studentId);
+    error TestNotAcceptableError(uint256 subjectId, uint8 testIdx, uint256 studentId, uint8 mark);
+    error TestAlreadyAcceptedError(uint256 subjectId, uint8 testIdx, uint256 studentId);
+    error TestAlreadyRejectedError(uint256 subjectId, uint8 testIdx, uint256 studentId);
 
     function addStudent(address addr, uint256 id) external;
 
@@ -83,7 +97,7 @@ interface IExamContract {
 
     function rejectSubjectResult(uint8 subjectId) external;
 
-    function getTestMark(uint8 subjectId, uint8 testIdx) external view returns (uint8, bool);
+    function getTestMark(uint8 subjectId, uint8 testIdx) external view returns (uint8, Status);
 
-    function getSubjectMark(uint8 subjectId) external view returns (uint8, bool);
+    function getSubjectMark(uint8 subjectId) external view returns (uint8, Status);
 }
