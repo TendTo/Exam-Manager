@@ -4,6 +4,13 @@ import { ExamContract__factory, ExamContract, IExamContract } from "../typechain
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { addAllStudents, Errors, parseTests as parseGetSubjectTests } from "./utils";
 
+    enum Status {
+        NoVote,
+        Pending,
+        Accepted,
+        Rejected
+    }
+
 describe("ExamContract", function () {
   let contractFactory: ExamContract__factory;
   let contract: ExamContract,
@@ -170,15 +177,15 @@ describe("ExamContract", function () {
 
       expect(await stud1Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
         testResults[0].mark,
-        false,
+        Status.Pending,
       ]);
       expect(await stud2Contract.getTestMark(subject.id, testIdx)).to.ordered.members([
         testResults[1].mark,
-        false,
+        Status.Pending,
       ]);
       expect(await stud3Contract.getTestMark(subject.id, testIdx)).to.ordered.members([
         testResults[2].mark,
-        false,
+        Status.Pending,
       ]);
     });
 
@@ -192,15 +199,15 @@ describe("ExamContract", function () {
 
       expect(await stud1Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
         testResults[0].mark,
-        false,
+        Status.Pending,
       ]);
       expect(await stud2Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
         testResults[1].mark,
-        false,
+        Status.Pending,
       ]);
       expect(await stud3Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
         0,
-        false,
+        Status.NoVote,
       ]);
     });
   });
