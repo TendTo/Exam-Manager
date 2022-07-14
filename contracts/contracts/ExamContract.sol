@@ -181,9 +181,39 @@ contract ExamContract is IExamContract {
     }
     
 
-    function acceptSubjectResult(uint8 subjectId) external {}
+    function acceptSubjectResult(uint8 subjectId) external {
+        uint256 studentId = studentIds[msg.sender];
+        SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
+        if (subjectResult.subjectStatus == Status.NoVote) {
+            revert SubjectNotAcceptable(subjectId, studentId);
+        }
+        if (subjectResult.subjectStatus == Status.Accepted) {
+            revert SubjectAlreadyAccepted(subjectId, studentId);
+        }
+        if (subjectResult.subjectStatus == Status.Rejected) {
+            revert SubjectAlreadyRejected(subjectId, studentId);
+        }
 
-    function rejectSubjectResult(uint8 subjectId) external {}
+        //TODO: Event for subject result accepted
+        subjectResult.subjectStatus = Status.Accepted;
+    }
+
+    function rejectSubjectResult(uint8 subjectId) external {
+        uint256 studentId = studentIds[msg.sender];
+        SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
+        if (subjectResult.subjectStatus == Status.NoVote) {
+            revert SubjectNotAcceptable(subjectId, studentId);
+        }
+        if (subjectResult.subjectStatus == Status.Accepted) {
+            revert SubjectAlreadyAccepted(subjectId, studentId);
+        }
+        if (subjectResult.subjectStatus == Status.Rejected) {
+            revert SubjectAlreadyRejected(subjectId, studentId);
+        }
+
+        //TODO: Event for subject result accepted
+        subjectResult.subjectStatus = Status.Rejected;
+    }
 
     function getTestMark(uint8 subjectId, uint8 testIdx)
         external
