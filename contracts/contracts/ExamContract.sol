@@ -6,8 +6,12 @@ import "./IExamContract.sol";
 contract ExamContract is IExamContract {
     address public immutable admin;
 
+    //SubjectID -> Subject
     mapping(uint256 => Subject) public subjects;
+
+    //StudentAddress -> StudentId
     mapping(address => uint256) public studentIds;
+
     //StudentID -> (SubjectID, subjectCareer)
     mapping(uint256 => StudentCareer) public careers;
 
@@ -15,6 +19,7 @@ contract ExamContract is IExamContract {
         admin = msg.sender;
     }
 
+    //region modifiers
     modifier onlyAdmin() {
         if (msg.sender != admin) revert UnauthorizedAdminError(admin, msg.sender);
         _;
@@ -32,14 +37,13 @@ contract ExamContract is IExamContract {
         _;
     }
 
-    function getTestResult(
-        uint256 studentId,
-        uint256 subjectId,
-        uint8 testIdx
-    ) private view returns (TestResult storage) {
-        return careers[studentId].subjectResults[subjectId].testResults[testIdx];
+    //endregion
+
+    function isProfAuthorized(uint256 subjectId, address profAddr) external view returns (bool) {
+        return subjects[subjectId].authorizedProf[profAddr];
     }
 
+    //region onlyAdmin methods
     function addStudent(address addr, uint256 id) external onlyAdmin {
         studentIds[addr] = id;
     }
@@ -52,12 +56,14 @@ contract ExamContract is IExamContract {
         uint256 subjectId,
         string calldata name,
         uint8 cfu,
-        uint256[] calldata subjectIdRequired
+        uint8 requiredCount,
+        uint256[] calldata subjectIdToUnlock
     ) external onlyAdmin {
         Subject storage subject = subjects[subjectId];
         subject.name = name;
         subject.cfu = cfu;
-        subject.subjectIdRequired = subjectIdRequired;
+        subject.requiredCount = requiredCount;
+        subject.subjectIdToUnlock = subjectIdToUnlock;
     }
 
     function removeSubject(uint256 subjectId) external onlyAdmin {
@@ -72,37 +78,50 @@ contract ExamContract is IExamContract {
         subjects[subjectId].authorizedProf[profAddr] = false;
     }
 
-    function isProfAuthorized(uint256 subjectId, address profAddr) external view returns (bool) {
-        return subjects[subjectId].authorizedProf[profAddr];
+    //endregion
+
+    //region getters
+    function getTestResult(
+        uint256 studentId,
+        uint256 subjectId,
+        uint8 testIdx
+    ) private view returns (TestResult storage) {
+        return careers[studentId].subjectResults[subjectId].testResults[testIdx];
     }
 
-    function setSubjectTests(uint256 subjectId, Test[] calldata tests)
+    function getTestMark(uint8 subjectId, uint8 testIdx)
         external
-        isAuthorizedProf(subjectId)
+        view
+        testExists(subjectId, testIdx)
+        returns (uint8, Status)
     {
-        Subject storage subject = subjects[subjectId];
-        delete subject.tests;
-        for (uint256 i = 0; i < tests.length; i++) {
-            subject.tests.push(tests[i]);
-        }
+        uint256 studentId = studentIds[msg.sender];
+        TestResult storage result = getTestResult(studentId, subjectId, testIdx);
+        return (result.mark, result.testStatus);
+    }
+
+    function getSubjectMark(uint8 subjectId) external view returns (uint8, Status) {
+        uint256 studentId = studentIds[msg.sender];
+        return (
+            careers[studentId].subjectResults[subjectId].mark,
+            careers[studentId].subjectResults[subjectId].subjectStatus
+        );
     }
 
     function getSubjectTests(uint256 subjectId) external view returns (Test[] memory) {
         return subjects[subjectId].tests;
     }
 
+    //endregion
+
+    //region test methods
     function checkTestDependencies(
         uint8 subjectId,
         uint8 testIdx,
         uint256 studentId
     ) private view returns (bool) {
-        uint8[] storage deps = subjects[subjectId].tests[testIdx].testIdxRequired;
-        for (uint256 i = 0; i < deps.length; i++) {
-            if (getTestResult(studentId, subjectId, deps[i]).testStatus != Status.Accepted) {
-                return false;
-            }
-        }
-        return true;
+        return (careers[studentId].subjectResults[subjectId].testResults[testIdx].unlockCounter >=
+            subjects[subjectId].tests[testIdx].requiredCount);
     }
 
     function registerTestResults(
@@ -124,11 +143,6 @@ contract ExamContract is IExamContract {
         }
     }
 
-    function registerSubjectResults(uint8 subjectId, StudentMark[] calldata subjectResults)
-        external
-        isAuthorizedProf(subjectId)
-    {}
-
     function acceptTestResult(uint8 subjectId, uint8 testIdx)
         external
         testExists(subjectId, testIdx)
@@ -137,7 +151,7 @@ contract ExamContract is IExamContract {
         TestResult storage result = careers[studentId].subjectResults[subjectId].testResults[
             testIdx
         ];
-        if (result.testStatus == Status.NoVote){
+        if (result.testStatus == Status.NoVote) {
             revert TestNotTakenError(subjectId, testIdx, studentId);
         }
         if (result.testStatus == Status.Accepted) {
@@ -153,17 +167,21 @@ contract ExamContract is IExamContract {
             revert TestNotAcceptableError(subjectId, testIdx, studentId, result.mark);
         }
 
+        uint8[] storage toUnlock = subjects[subjectId].tests[testIdx].testIdxToUnlock;
+        for (uint256 i = 0; i < toUnlock.length; i++) {
+            careers[studentId].subjectResults[subjectId].testResults[toUnlock[i]].unlockCounter++;
+        }
+
         //TODO: Event for test result accepted
         result.testStatus = Status.Accepted;
     }
-
 
     function rejectTestResult(uint8 subjectId, uint8 testIdx) external {
         uint256 studentId = studentIds[msg.sender];
         TestResult storage result = careers[studentId].subjectResults[subjectId].testResults[
             testIdx
         ];
-        if (result.testStatus == Status.NoVote){
+        if (result.testStatus == Status.NoVote) {
             revert TestNotTakenError(subjectId, testIdx, studentId);
         }
         if (result.testStatus == Status.Accepted) {
@@ -179,19 +197,62 @@ contract ExamContract is IExamContract {
         //TODO: Event for test result rejected
         result.testStatus = Status.Rejected;
     }
-    
+
+    //endregion
+
+    function setSubjectTests(uint256 subjectId, Test[] calldata tests)
+        external
+        isAuthorizedProf(subjectId)
+    {
+        Subject storage subject = subjects[subjectId];
+        delete subject.tests;
+        for (uint256 i = 0; i < tests.length; i++) {
+            subject.tests.push(tests[i]);
+        }
+    }
+
+    //region subject methods
+
+    function checkSubjectDependencies(uint256 subjectId, uint256 studentId)
+        private
+        view
+        returns (bool)
+    {
+        return (careers[studentId].subjectResults[subjectId].unlockCounter >=
+            subjects[subjectId].requiredCount);
+    }
+
+    function registerSubjectResults(uint8 subjectId, StudentMark[] calldata subjectResults)
+        external
+        isAuthorizedProf(subjectId)
+    {
+        for (uint256 i = 0; i < subjectResults.length; i++) {
+            bool valid = checkSubjectDependencies(subjectId, subjectResults[i].studentId);
+            if (!valid) {
+                //TODO: emit event subject not registrable
+                continue;
+            }
+            careers[subjectResults[i].studentId].subjectResults[subjectId].mark = subjectResults[i]
+                .mark;
+        }
+    }
 
     function acceptSubjectResult(uint8 subjectId) external {
         uint256 studentId = studentIds[msg.sender];
         SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
         if (subjectResult.subjectStatus == Status.NoVote) {
-            revert SubjectNotAcceptable(subjectId, studentId);
+            revert SubjectNotAcceptableError(subjectId, studentId);
         }
         if (subjectResult.subjectStatus == Status.Accepted) {
-            revert SubjectAlreadyAccepted(subjectId, studentId);
+            revert SubjectAlreadyAcceptedError(subjectId, studentId);
         }
         if (subjectResult.subjectStatus == Status.Rejected) {
-            revert SubjectAlreadyRejected(subjectId, studentId);
+            revert SubjectAlreadyRejectedError(subjectId, studentId);
+        }
+
+        uint256[] storage toUnlock = subjects[subjectId].subjectIdToUnlock;
+        for (uint256 i = 0; i < toUnlock.length; i++) {
+            careers[studentId].subjectResults[subjectId].unlockCounter++;
         }
 
         //TODO: Event for subject result accepted
@@ -214,23 +275,5 @@ contract ExamContract is IExamContract {
         //TODO: Event for subject result accepted
         subjectResult.subjectStatus = Status.Rejected;
     }
-
-    function getTestMark(uint8 subjectId, uint8 testIdx)
-        external
-        view
-        testExists(subjectId, testIdx)
-        returns (uint8, Status)
-    {
-        uint256 studentId = studentIds[msg.sender];
-        TestResult storage result = getTestResult(studentId, subjectId, testIdx);
-        return (result.mark, result.testStatus);
-    }
-
-    function getSubjectMark(uint8 subjectId) external view returns (uint8, Status) {
-        uint256 studentId = studentIds[msg.sender];
-        return (
-            careers[studentId].subjectResults[subjectId].mark,
-            careers[studentId].subjectResults[subjectId].subjectStatus
-        );
-    }
+    //endregion
 }
