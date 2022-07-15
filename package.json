@@ -12,7 +12,8 @@
   },
   "scripts": {
     "test": "npm test --prefix contracts",
-    "compile": "npm run compile --prefix contracts"
+    "compile": "npm run compile --prefix contracts",
+    "start": "npm run dev --prefix dapp"
   },
   "repository": {
     "type": "git",
