@@ -160,7 +160,7 @@ contract ExamContract is IExamContract {
         if (result.testStatus == Status.Rejected) {
             revert TestAlreadyRejectedError(subjectId, testIdx, studentId);
         }
-        if (result.expiration > block.timestamp) {
+        if (block.timestamp > result.expiration) {
             revert TestExpiredError(subjectId, testIdx, result.expiration);
         }
         if (result.mark < 18) {
@@ -190,7 +190,7 @@ contract ExamContract is IExamContract {
         if (result.testStatus == Status.Rejected) {
             revert TestAlreadyRejectedError(subjectId, testIdx, studentId);
         }
-        if (result.expiration > block.timestamp) {
+        if (block.timestamp > result.expiration) {
             revert TestExpiredError(subjectId, testIdx, result.expiration);
         }
 
