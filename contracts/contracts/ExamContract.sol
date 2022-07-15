@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "./IExamContract.sol";
+import "hardhat/console.sol";
 
 contract ExamContract is IExamContract {
     address public immutable admin;
@@ -45,6 +46,9 @@ contract ExamContract is IExamContract {
 
     //region onlyAdmin methods
     function addStudent(address addr, uint256 id) external onlyAdmin {
+        if (studentIds[addr] != 0){
+            revert AddressAlreadyInUseError(addr);
+        }
         studentIds[addr] = id;
     }
 

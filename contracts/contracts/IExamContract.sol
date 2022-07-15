@@ -50,6 +50,8 @@ interface IExamContract {
         mapping(uint8 => TestResult) testResults;
     }
 
+    error AddressAlreadyInUseError(address addr);
+
     error UnauthorizedProfessorError(uint256 subjectId, address unauthorizedAddr);
     error UnauthorizedAdminError(address admin, address unauthorizedAdmin);
 
