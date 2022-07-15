@@ -2,14 +2,14 @@ import { expect } from "chai";
 import { ethers } from "hardhat";
 import { ExamContract__factory, ExamContract, IExamContract } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
-import { addAllStudents, Errors, parseTests as parseGetSubjectTests } from "./utils";
-
-    enum Status {
-        NoVote,
-        Pending,
-        Accepted,
-        Rejected
-    }
+import {
+  addAllStudents,
+  addSubject,
+  Errors,
+  parseTests as parseGetSubjectTests,
+  Status,
+  subject,
+} from "./utils";
 
 describe("ExamContract", function () {
   let contractFactory: ExamContract__factory;
@@ -35,8 +35,6 @@ describe("ExamContract", function () {
   });
 
   describe("Admin", function () {
-    const subject = { name: "Prog1", id: 123, cfu: 9, deps: [1, 2, 3] };
-
     it("Should revert with 'UnauthorizedAdminError'", async function () {
       await expect(profContract.addStudent(stud1, 1)).to.be.revertedWithCustomError(
         contract,
@@ -46,7 +44,7 @@ describe("ExamContract", function () {
         contract,
         Errors.UnauthorizedAdminError
       );
-      await expect(profContract.addSubject(1, "Name", 9, [])).to.be.revertedWithCustomError(
+      await expect(profContract.addSubject(1, "Name", 9, 0, [])).to.be.revertedWithCustomError(
         contract,
         Errors.UnauthorizedAdminError
       );
@@ -62,6 +60,26 @@ describe("ExamContract", function () {
         contract,
         Errors.UnauthorizedAdminError
       );
+    });
+
+    it("Should be able to change address", async function () {
+      // The student with studentId 1 is changing address stud1 => stud2
+      await contract.addStudent(stud1, 1);
+      expect(await contract.studentIds(stud1)).to.equal(1);
+
+      await contract.addStudent(stud2, 1);
+      expect(await contract.studentIds(stud2)).to.equal(1);
+    });
+
+    it("Should revert with 'AddressAlreadyInUseError'", async function () {
+      // The student with studentId 2 is setting its address to stud1
+      // which is already in use by the student with studentId 1
+      await contract.addStudent(stud1, 1);
+      expect(await contract.studentIds(stud1)).to.equal(1);
+
+      expect(contract.addStudent(stud1, 2))
+        .to.be.revertedWithCustomError(contract, Errors.AddressAlreadyInUseError)
+        .withArgs(stud1);
     });
 
     it("Should set the admin", async function () {
@@ -82,7 +100,7 @@ describe("ExamContract", function () {
     });
 
     it("Should add a subject", async function () {
-      await contract.addSubject(subject.id, subject.name, subject.cfu, subject.deps);
+      await addSubject(contract);
       const { name, cfu } = await contract.subjects(subject.id);
       expect(name).to.equal(subject.name);
       expect(cfu).to.equal(subject.cfu);
@@ -92,7 +110,7 @@ describe("ExamContract", function () {
     });
 
     it("Should remove a subject", async function () {
-      await contract.addSubject(subject.id, subject.name, subject.cfu, []);
+      await addSubject(contract);
       await contract.removeSubject(subject.id);
       const { name, cfu } = await contract.subjects(subject.id);
       expect(name).to.equal("");
@@ -100,7 +118,7 @@ describe("ExamContract", function () {
     });
 
     it("Should add an authorized prof to subject", async function () {
-      await contract.addSubject(subject.id, subject.name, subject.cfu, []);
+      await addSubject(contract);
 
       expect(await contract.isProfAuthorized(subject.id, prof)).to.be.false;
       await contract.addAuthorizedProf(subject.id, prof);
@@ -109,7 +127,7 @@ describe("ExamContract", function () {
     });
 
     it("Should remove an authorized prof to subject", async function () {
-      await contract.addSubject(subject.id, subject.name, subject.cfu, []);
+      await addSubject(contract);
 
       await contract.addAuthorizedProf(subject.id, prof);
       await contract.removeAuthorizedProf(subject.id, prof);
@@ -118,19 +136,20 @@ describe("ExamContract", function () {
   });
 
   describe("Professor", function () {
-    const subject = { name: "Prog1", id: 123, cfu: 9, deps: [1, 2, 3] };
     const tests: IExamContract.TestStruct[] = [
       {
         name: "Scritto",
         optional: false,
         expiresIn: 100,
-        testIdxRequired: [],
+        requiredCount: 0,
+        testIdxToUnlock: [1],
       },
       {
         name: "Orale",
         optional: false,
         expiresIn: 10,
-        testIdxRequired: [0],
+        requiredCount: 1,
+        testIdxToUnlock: [],
       },
     ];
     const testResults: IExamContract.StudentMarkStruct[] = [
@@ -140,9 +159,10 @@ describe("ExamContract", function () {
     ];
 
     beforeEach(async function () {
-      contract.addSubject(subject.id, subject.name, subject.cfu, subject.deps);
-      contract.addAuthorizedProf(subject.id, prof);
-      contract.setSubjectTests(subject.id, tests);
+      await addSubject(contract);
+      await contract.addAuthorizedProf(subject.id, prof);
+      await profContract.setSubjectTests(subject.id, tests);
+      await addAllStudents(contract, stud1, stud2, stud3);
     });
 
     it("Should revert with 'UnauthorizedProfessorError'", async function () {
@@ -170,10 +190,9 @@ describe("ExamContract", function () {
 
     it("Should register the marks for a list of students", async function () {
       const testIdx = 0;
-      await addAllStudents(contract, stud1, stud2, stud3);
 
       await profContract.setSubjectTests(subject.id, tests);
-      await profContract.registerTestResults(subject.id, testIdx, testResults);
+      await profContract.registerTestResults(subject.id, testIdx, testResults.slice(0, 2));
 
       expect(await stud1Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
         testResults[0].mark,
@@ -183,32 +202,100 @@ describe("ExamContract", function () {
         testResults[1].mark,
         Status.Pending,
       ]);
-      expect(await stud3Contract.getTestMark(subject.id, testIdx)).to.ordered.members([
-        testResults[2].mark,
-        Status.Pending,
-      ]);
     });
 
     it("Should not register a mark for students that do not meet the test's dependencies requirements", async function () {
-      const testIdx = 0;
-      await addAllStudents(contract, stud1, stud2, stud3);
+      const testIdx = 0,
+        testIdx2 = 1;
 
       await profContract.setSubjectTests(subject.id, tests);
       // The third student didn't pass the exam
-      await profContract.registerTestResults(subject.id, testIdx, testResults.slice(0, 2));
+      await profContract.registerTestResults(subject.id, testIdx, testResults.slice(0, 1));
+      await stud1Contract.acceptTestResult(subject.id, testIdx);
+      await profContract.registerTestResults(subject.id, testIdx2, testResults.slice(0, 2));
+      // TODO: add another registerTestResults for the dependency test for the third student
 
-      expect(await stud1Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(subject.id, testIdx2)).to.have.ordered.members([
         testResults[0].mark,
         Status.Pending,
       ]);
-      expect(await stud2Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
-        testResults[1].mark,
-        Status.Pending,
-      ]);
-      expect(await stud3Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
+      expect(await stud2Contract.getTestMark(subject.id, testIdx2)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
+    });
+  });
+
+  describe("Students", function () {
+    const subject = { name: "Prog1", id: 123, cfu: 9, deps: [1, 2, 3] };
+    const tests: IExamContract.TestStruct[] = [
+      {
+        name: "Scritto",
+        optional: false,
+        expiresIn: 100,
+        requiredCount: 0,
+        testIdxToUnlock: [1],
+      },
+      {
+        name: "Orale",
+        optional: false,
+        expiresIn: 10,
+        requiredCount: 1,
+        testIdxToUnlock: [],
+      },
+    ];
+    const testResults: IExamContract.StudentMarkStruct[] = [
+      { mark: 18, studentId: 1 },
+      { mark: 25, studentId: 2 },
+      { mark: 30, studentId: 3 },
+    ];
+
+    beforeEach(async function () {
+      await addSubject(contract);
+      await contract.addAuthorizedProf(subject.id, prof);
+      await profContract.setSubjectTests(subject.id, tests);
+      await addAllStudents(contract, stud1, stud2, stud3);
+    });
+
+    it("Should accept a valid test result", async function () {
+      const testIdx = 0;
+      await profContract.registerTestResults(subject.id, testIdx, testResults.slice(0, 1));
+      await stud1Contract.acceptTestResult(subject.id, testIdx);
+      expect(await stud1Contract.getTestMark(subject.id, testIdx)).to.have.ordered.members([
+        testResults[0].mark,
+        Status.Accepted,
+      ]);
+    });
+
+    it("Should revert with 'TestDoesNotExistsError'", async function () {
+      const testIdx = 10;
+      expect(stud1Contract.acceptTestResult(subject.id, testIdx))
+        .to.be.revertedWithCustomError(contract, Errors.TestDoesNotExistsError)
+        .withArgs(subject.id, testIdx);
+    });
+
+    it("Should revert with 'TestNotTakenError'", async function () {
+      const testIdx = 0;
+      expect(stud1Contract.acceptTestResult(subject.id, testIdx))
+        .to.be.revertedWithCustomError(contract, Errors.TestNotTakenError)
+        .withArgs(subject.id, testIdx, 1);
+    });
+
+    it("Should revert with 'TestAlreadyAcceptedError'", async function () {
+      const testIdx = 0;
+      await profContract.registerTestResults(subject.id, testIdx, testResults.slice(0, 1));
+      await stud1Contract.acceptTestResult(subject.id, testIdx);
+      expect(stud1Contract.acceptTestResult(subject.id, testIdx))
+        .to.be.revertedWithCustomError(contract, Errors.TestAlreadyAcceptedError)
+        .withArgs(subject.id, testIdx, 1);
+    });
+
+    it("Should revert with 'TestNotAcceptableError'", async function () {
+      const testIdx = 0;
+      await profContract.registerTestResults(subject.id, testIdx, [{ studentId: 1, mark: 10 }]);
+      expect(stud1Contract.acceptTestResult(subject.id, testIdx))
+        .to.be.revertedWithCustomError(contract, Errors.TestNotAcceptableError)
+        .withArgs(subject.id, testIdx, 1, 10);
     });
   });
 });
