@@ -17,7 +17,8 @@ interface IExamContract {
         string name;
         uint256 expiresIn;
         bool optional;
-        uint8[] testIdxRequired;
+        uint8 requiredCount;
+        uint8[] testIdxToUnlock;
     }
 
     struct Subject {
@@ -25,13 +26,15 @@ interface IExamContract {
         uint8 cfu;
         Test[] tests;
         mapping(address => bool) authorizedProf;
-        uint256[] subjectIdRequired;
+        uint8 requiredCount;
+        uint256[] subjectIdToUnlock;
     }
 
     struct TestResult {
         uint8 mark;
         Status testStatus;
         uint256 expiration;
+        uint8 unlockCounter;
     }
 
     struct StudentCareer {
@@ -43,6 +46,7 @@ interface IExamContract {
     struct SubjectResults {
         uint8 mark;
         Status subjectStatus;
+        uint8 unlockCounter;
         mapping(uint8 => TestResult) testResults;
     }
 
@@ -66,10 +70,11 @@ interface IExamContract {
     function deleteStudent(address addr) external;
 
     function addSubject(
-        uint256 id,
+        uint256 subjectId,
         string calldata name,
         uint8 cfu,
-        uint256[] calldata subjectIdRequired
+        uint8 requiredCount,
+        uint256[] calldata subjectIdToUnlock
     ) external;
 
     function removeSubject(uint256 subjectId) external;

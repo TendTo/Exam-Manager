@@ -202,13 +202,13 @@ contract ExamContract is IExamContract {
         uint256 studentId = studentIds[msg.sender];
         SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
         if (subjectResult.subjectStatus == Status.NoVote) {
-            revert SubjectNotAcceptable(subjectId, studentId);
+            revert SubjectNotAcceptableError(subjectId, studentId);
         }
         if (subjectResult.subjectStatus == Status.Accepted) {
-            revert SubjectAlreadyAccepted(subjectId, studentId);
+            revert SubjectAlreadyAcceptedError(subjectId, studentId);
         }
         if (subjectResult.subjectStatus == Status.Rejected) {
-            revert SubjectAlreadyRejected(subjectId, studentId);
+            revert SubjectAlreadyRejectedError(subjectId, studentId);
         }
 
         //TODO: Event for subject result accepted
