@@ -57,9 +57,9 @@ interface IExamContract {
     error TestAlreadyAcceptedError(uint256 subjectId, uint8 testIdx, uint256 studentId);
     error TestAlreadyRejectedError(uint256 subjectId, uint8 testIdx, uint256 studentId);
 
-    error SubjectNotAcceptable(uint256 subjectId, uint256 studentId);
-    error SubjectAlreadyAccepted(uint256 subjectId, uint256 studentId);
-    error SubjectAlreadyRejected(uint256 subjectId, uint256 studentId);
+    error SubjectNotAcceptableError(uint256 subjectId, uint256 studentId);
+    error SubjectAlreadyAcceptedError(uint256 subjectId, uint256 studentId);
+    error SubjectAlreadyRejectedError(uint256 subjectId, uint256 studentId);
 
     function addStudent(address addr, uint256 id) external;
 
