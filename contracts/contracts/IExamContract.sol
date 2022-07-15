@@ -4,9 +4,8 @@ pragma solidity ^0.8.0;
 interface IExamContract {
     enum Status {
         NoVote,
-        Pending,
-        Accepted,
-        Rejected
+        Passed,
+        Accepted
     }
 
     struct StudentMark {
@@ -16,9 +15,10 @@ interface IExamContract {
     struct Test {
         string name;
         uint256 expiresIn;
+        uint8 minMark;
         bool optional;
-        uint8 requiredCount;
-        uint8[] testIdxToUnlock;
+        uint8[] testIdxRequired;
+        uint8[] testIdxReset;
     }
 
     struct Subject {
@@ -61,11 +61,9 @@ interface IExamContract {
     error TestNotTakenError(uint256 subjectId, uint8 testIdx, uint256 studentId);
     error TestNotAcceptableError(uint256 subjectId, uint8 testIdx, uint256 studentId, uint8 mark);
     error TestAlreadyAcceptedError(uint256 subjectId, uint8 testIdx, uint256 studentId);
-    error TestAlreadyRejectedError(uint256 subjectId, uint8 testIdx, uint256 studentId);
 
     error SubjectNotAcceptableError(uint256 subjectId, uint256 studentId);
     error SubjectAlreadyAcceptedError(uint256 subjectId, uint256 studentId);
-    error SubjectAlreadyRejectedError(uint256 subjectId, uint256 studentId);
 
     function addStudent(address addr, uint256 id) external;
 
@@ -100,13 +98,13 @@ interface IExamContract {
     function registerSubjectResults(uint8 subjectId, StudentMark[] calldata subjectResults)
         external;
 
-    function acceptTestResult(uint8 subjectId, uint8 testIdx) external;
-
     function rejectTestResult(uint8 subjectId, uint8 testIdx) external;
 
     function acceptSubjectResult(uint8 subjectId) external;
 
     function rejectSubjectResult(uint8 subjectId) external;
+
+    function resetSubject(uint256 subjectId) external;
 
     function getTestMark(uint8 subjectId, uint8 testIdx) external view returns (uint8, Status);
 

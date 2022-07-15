@@ -46,7 +46,7 @@ contract ExamContract is IExamContract {
 
     //region onlyAdmin methods
     function addStudent(address addr, uint256 id) external onlyAdmin {
-        if (studentIds[addr] != 0){
+        if (studentIds[addr] != 0) {
             revert AddressAlreadyInUseError(addr);
         }
         studentIds[addr] = id;
@@ -123,9 +123,44 @@ contract ExamContract is IExamContract {
         uint8 subjectId,
         uint8 testIdx,
         uint256 studentId
-    ) private view returns (bool) {
-        return (careers[studentId].subjectResults[subjectId].testResults[testIdx].unlockCounter >=
-            subjects[subjectId].tests[testIdx].requiredCount);
+    ) private returns (bool) {
+        uint8[] storage deps = subjects[subjectId].tests[testIdx].testIdxRequired;
+        for (uint256 i = 0; i < deps.length; i++) {
+            uint8 dep = deps[i];
+            TestResult storage depResult = getTestResult(studentId, subjectId, dep);
+            if (depResult.testStatus == Status.NoVote || depResult.expiration > block.timestamp) {
+                return false;
+            }
+            if (depResult.testStatus == Status.Passed) {
+                depResult.testStatus = Status.Accepted;
+            }
+        }
+        return true;
+    }
+
+    function failTest(
+        uint8 subjectId,
+        uint8 testIdx,
+        uint256 studentId
+    ) private {
+        uint8[] storage deps = subjects[subjectId].tests[testIdx].testIdxReset;
+        for (uint8 i = 0; i < deps.length; i++) {
+            TestResult storage t = getTestResult(studentId, subjectId, deps[i]);
+            t.testStatus = Status.NoVote;
+        }
+    }
+
+    function passTest(
+        uint8 subjectId,
+        uint8 testIdx,
+        uint256 studentId,
+        uint8 mark
+    ) private {
+        uint256 expiration = block.timestamp + subjects[subjectId].tests[testIdx].expiresIn;
+        TestResult storage result = getTestResult(studentId, subjectId, testIdx);
+        result.mark = mark;
+        result.testStatus = Status.Passed;
+        result.expiration = expiration;
     }
 
     function registerTestResults(
@@ -133,51 +168,18 @@ contract ExamContract is IExamContract {
         uint8 testIdx,
         StudentMark[] calldata testResults
     ) external isAuthorizedProf(subjectId) testExists(subjectId, testIdx) {
-        uint256 expiration = block.timestamp + subjects[subjectId].tests[testIdx].expiresIn;
+        uint8 minMark = subjects[subjectId].tests[testIdx].minMark;
         for (uint256 i = 0; i < testResults.length; i++) {
-            bool valid = checkTestDependencies(subjectId, testIdx, testResults[i].studentId);
-            if (!valid) {
+            if (testResults[i].mark < minMark) {
+                //TODO: Emit not passed
+                failTest(subjectId, testIdx, testResults[i].studentId);
+            } else if (checkTestDependencies(subjectId, testIdx, testResults[i].studentId)) {
+                // TODO: Emit passed
+                passTest(subjectId, testIdx, testResults[i].studentId, testResults[i].mark);
+            } else {
                 // TODO: Emit event student not authorized to take test
-                continue;
             }
-            TestResult storage result = getTestResult(testResults[i].studentId, subjectId, testIdx);
-            result.mark = testResults[i].mark;
-            result.testStatus = Status.Pending;
-            result.expiration = expiration;
         }
-    }
-
-    function acceptTestResult(uint8 subjectId, uint8 testIdx)
-        external
-        testExists(subjectId, testIdx)
-    {
-        uint256 studentId = studentIds[msg.sender];
-        TestResult storage result = careers[studentId].subjectResults[subjectId].testResults[
-            testIdx
-        ];
-        if (result.testStatus == Status.NoVote) {
-            revert TestNotTakenError(subjectId, testIdx, studentId);
-        }
-        if (result.testStatus == Status.Accepted) {
-            revert TestAlreadyAcceptedError(subjectId, testIdx, studentId);
-        }
-        if (result.testStatus == Status.Rejected) {
-            revert TestAlreadyRejectedError(subjectId, testIdx, studentId);
-        }
-        if (block.timestamp > result.expiration) {
-            revert TestExpiredError(subjectId, testIdx, result.expiration);
-        }
-        if (result.mark < 18) {
-            revert TestNotAcceptableError(subjectId, testIdx, studentId, result.mark);
-        }
-
-        uint8[] storage toUnlock = subjects[subjectId].tests[testIdx].testIdxToUnlock;
-        for (uint256 i = 0; i < toUnlock.length; i++) {
-            careers[studentId].subjectResults[subjectId].testResults[toUnlock[i]].unlockCounter++;
-        }
-
-        //TODO: Event for test result accepted
-        result.testStatus = Status.Accepted;
     }
 
     function rejectTestResult(uint8 subjectId, uint8 testIdx) external {
@@ -185,21 +187,11 @@ contract ExamContract is IExamContract {
         TestResult storage result = careers[studentId].subjectResults[subjectId].testResults[
             testIdx
         ];
-        if (result.testStatus == Status.NoVote) {
-            revert TestNotTakenError(subjectId, testIdx, studentId);
-        }
         if (result.testStatus == Status.Accepted) {
             revert TestAlreadyAcceptedError(subjectId, testIdx, studentId);
         }
-        if (result.testStatus == Status.Rejected) {
-            revert TestAlreadyRejectedError(subjectId, testIdx, studentId);
-        }
-        if (block.timestamp > result.expiration) {
-            revert TestExpiredError(subjectId, testIdx, result.expiration);
-        }
-
         //TODO: Event for test result rejected
-        result.testStatus = Status.Rejected;
+        failTest(subjectId, testIdx, studentId);
     }
 
     //endregion
@@ -250,9 +242,6 @@ contract ExamContract is IExamContract {
         if (subjectResult.subjectStatus == Status.Accepted) {
             revert SubjectAlreadyAcceptedError(subjectId, studentId);
         }
-        if (subjectResult.subjectStatus == Status.Rejected) {
-            revert SubjectAlreadyRejectedError(subjectId, studentId);
-        }
 
         uint256[] storage toUnlock = subjects[subjectId].subjectIdToUnlock;
         for (uint256 i = 0; i < toUnlock.length; i++) {
@@ -272,12 +261,18 @@ contract ExamContract is IExamContract {
         if (subjectResult.subjectStatus == Status.Accepted) {
             revert SubjectAlreadyAcceptedError(subjectId, studentId);
         }
-        if (subjectResult.subjectStatus == Status.Rejected) {
-            revert SubjectAlreadyRejectedError(subjectId, studentId);
-        }
 
         //TODO: Event for subject result accepted
-        subjectResult.subjectStatus = Status.Rejected;
+        resetSubjectResults(subjectId);
+    }
+
+    function resetSubjectResults(uint256 subjectId) internal {
+        uint256 studentId = studentIds[msg.sender];
+        delete careers[studentId].subjectResults[subjectId];
+    }
+
+    function resetSubject(uint256 subjectId) external {
+        resetSubjectResults(subjectId);
     }
     //endregion
 }
