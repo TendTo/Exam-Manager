@@ -124,18 +124,28 @@ contract ExamContract is IExamContract {
         uint8 testIdx,
         uint256 studentId
     ) private returns (bool) {
-        uint8[] storage deps = subjects[subjectId].tests[testIdx].testIdxRequired;
+        uint8[][] storage deps = subjects[subjectId].tests[testIdx].testIdxRequired;
+
+        if (deps.length == 0) return true;
+
         for (uint256 i = 0; i < deps.length; i++) {
-            uint8 dep = deps[i];
-            TestResult storage depResult = getTestResult(studentId, subjectId, dep);
-            if (depResult.testStatus == Status.NoVote || depResult.expiration > block.timestamp) {
-                return false;
+            bool valid = true;
+            for (uint256 j = 0; j < deps[i].length; j++) {
+                uint8 dep = deps[i][j];
+                TestResult storage depResult = getTestResult(studentId, subjectId, dep);
+                if (
+                    depResult.testStatus == Status.NoVote || depResult.expiration > block.timestamp
+                ) {
+                    valid = false;
+                    break;
+                }
+                if (depResult.testStatus == Status.Passed) {
+                    depResult.testStatus = Status.Accepted;
+                }
             }
-            if (depResult.testStatus == Status.Passed) {
-                depResult.testStatus = Status.Accepted;
-            }
+            if (valid) return true;
         }
-        return true;
+        return false;
     }
 
     function failTest(
@@ -143,9 +153,21 @@ contract ExamContract is IExamContract {
         uint8 testIdx,
         uint256 studentId
     ) private {
-        uint8[] storage deps = subjects[subjectId].tests[testIdx].testIdxReset;
-        for (uint8 i = 0; i < deps.length; i++) {
-            TestResult storage t = getTestResult(studentId, subjectId, deps[i]);
+        uint8[] storage reset = subjects[subjectId].tests[testIdx].testIdxReset;
+        for (uint8 i = 0; i < reset.length; i++) {
+            TestResult storage t = getTestResult(studentId, subjectId, reset[i]);
+            t.testStatus = Status.NoVote;
+        }
+    }
+
+    function resetTestOnTake(
+        uint8 subjectId,
+        uint8 testIdx,
+        uint256 studentId
+    ) private {
+        uint8[] storage reset = subjects[subjectId].tests[testIdx].testIdxResetOnTake;
+        for (uint8 i = 0; i < reset.length; i++) {
+            TestResult storage t = getTestResult(studentId, subjectId, reset[i]);
             t.testStatus = Status.NoVote;
         }
     }
@@ -170,6 +192,7 @@ contract ExamContract is IExamContract {
     ) external isAuthorizedProf(subjectId) testExists(subjectId, testIdx) {
         uint8 minMark = subjects[subjectId].tests[testIdx].minMark;
         for (uint256 i = 0; i < testResults.length; i++) {
+            resetTestOnTake(subjectId, testIdx, testResults[i].studentId);
             if (testResults[i].mark < minMark) {
                 //TODO: Emit not passed
                 failTest(subjectId, testIdx, testResults[i].studentId);
