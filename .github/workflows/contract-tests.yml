@@ -31,7 +31,7 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run the tests
+      - name: Compile the contracts
         run: npm run compile
 
       - name: Run the tests
@@ -40,6 +40,6 @@ jobs:
       - uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: ./coverage.json
+          files: ./contracts/coverage.json
           fail_ci_if_error: true
           verbose: true
