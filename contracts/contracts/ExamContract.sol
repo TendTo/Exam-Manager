@@ -134,7 +134,7 @@ contract ExamContract is IExamContract {
                 uint8 dep = deps[i][j];
                 TestResult storage depResult = getTestResult(studentId, subjectId, dep);
                 if (
-                    depResult.testStatus == Status.NoVote || depResult.expiration > block.timestamp
+                    depResult.testStatus == Status.NoVote || block.timestamp > depResult.expiration
                 ) {
                     valid = false;
                     break;
@@ -205,7 +205,10 @@ contract ExamContract is IExamContract {
         }
     }
 
-    function rejectTestResult(uint8 subjectId, uint8 testIdx) external {
+    function rejectTestResult(uint8 subjectId, uint8 testIdx)
+        external
+        testExists(subjectId, testIdx)
+    {
         uint256 studentId = studentIds[msg.sender];
         TestResult storage result = careers[studentId].subjectResults[subjectId].testResults[
             testIdx
