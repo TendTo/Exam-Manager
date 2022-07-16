@@ -13,7 +13,9 @@
   "scripts": {
     "test": "npm test --prefix contracts",
     "compile": "npm run compile --prefix contracts",
-    "start": "npm run dev --prefix dapp"
+    "start": "npm run dev --prefix dapp",
+    "deploy:ganache": "npm run deploy:ganache --prefix contracts",
+    "deploy:multicall": "npm run deploy:multicall --prefix contracts"
   },
   "repository": {
     "type": "git",
