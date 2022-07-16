@@ -95,7 +95,7 @@ export const calculusTests: IExamContract.TestStruct[] = [
     expiresIn: 100,
     minMark: 18,
     testIdxRequired: [[1]],
-    testIdxReset: [1],
+    testIdxReset: [0],
     testIdxResetOnTake: [],
   },
   {
