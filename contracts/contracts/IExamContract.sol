@@ -65,6 +65,30 @@ interface IExamContract {
     error SubjectNotAcceptableError(uint256 subjectId, uint256 studentId);
     error SubjectAlreadyAcceptedError(uint256 subjectId, uint256 studentId);
 
+    event TestPassed(
+        uint256 indexed subjectId,
+        uint8 indexed testIdx,
+        uint256 indexed studentId,
+        uint8 mark
+    );
+    event TestFailed(
+        uint256 indexed subjectId,
+        uint8 indexed testIdx,
+        uint256 indexed studentId,
+        uint8 mark
+    );
+    event TestRejected(uint256 indexed subjectId, uint8 indexed testIdx, uint256 indexed studentId);
+    event MissingTestRequirements(
+        uint256 indexed subjectId,
+        uint8 indexed testIdx,
+        uint256 indexed studentId
+    );
+    event TestResetted(uint256 indexed subjectId, uint8 indexed testIdx, uint256 indexed studentId);
+
+    event SubjectAccepted(uint256 indexed subjectId, uint256 indexed studentId, uint8 mark);
+    event SubjectResetted(uint256 indexed subjectId, uint256 indexed studentId);
+    event MissingSubjectRequrements(uint256 indexed subjectId, uint256 indexed studentId);
+
     function addStudent(address addr, uint256 id) external;
 
     function deleteStudent(address addr) external;
@@ -101,8 +125,6 @@ interface IExamContract {
     function rejectTestResult(uint256 subjectId, uint8 testIdx) external;
 
     function acceptSubjectResult(uint256 subjectId) external;
-
-    function rejectSubjectResult(uint256 subjectId) external;
 
     function resetSubject(uint256 subjectId) external;
 
