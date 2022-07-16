@@ -1,14 +1,22 @@
 import { ThemeContextProvider } from "./themeContext";
-import { ChainId, Config, DAppProvider, Ropsten } from "@usedapp/core";
+import { ChainId, Config, DAppProvider, Ropsten, Localhost } from "@usedapp/core";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import adresses from "config/contracts.json";
+
+// const config: Config = {
+//   readOnlyUrls: {
+//     [ChainId.Ropsten]: `https://ropsten.infura.io/v3/a98b74ca6632423a815f4eab3a144dae`,
+//   },
+//   networks: [Ropsten],
+// };
 
 const config: Config = {
   readOnlyUrls: {
-    [ChainId.Ropsten]: `https://ropsten.infura.io/v3/a98b74ca6632423a815f4eab3a144dae`,
+    [Localhost.chainId]: `http://127.0.0.1:7545`,
   },
-  networks: [Ropsten],
+  networks: [{...Localhost, multicallAddress: adresses.multicallAddress}],
 };
 
 type ContextProviderProps = {
