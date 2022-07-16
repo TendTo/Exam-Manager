@@ -390,6 +390,24 @@ describe("ExamContract", function () {
         Status.NoVote,
       ]);
     });
+
+    it("Should reset a subject completely", async function () {
+      const testIdx = 0;
+      const testResults = [{ mark: 18, studentId: 1 }];
+      const subjectResults = [{ mark: 24, studentId: 1 }];
+      await profContract.registerTestResults(prog1.id, testIdx, testResults);
+      await profContract.registerSubjectResults(prog1.id, subjectResults);
+      await stud1Contract.resetSubject(prog1.id);
+
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
+        0,
+        Status.NoVote,
+      ]);
+      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+        0,
+        Status.NoVote,
+      ]);
+    });
   });
 
   describe("Complete flow", function () {

@@ -300,6 +300,9 @@ contract ExamContract is IExamContract {
 
     function resetSubjectResults(uint256 subjectId) internal {
         uint256 studentId = studentIds[msg.sender];
+        for (uint8 i = 0; i < subjects[subjectId].tests.length; i++) {
+            delete careers[studentId].subjectResults[subjectId].testResults[i];
+        }
         delete careers[studentId].subjectResults[subjectId];
     }
 
