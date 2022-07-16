@@ -415,5 +415,40 @@ describe("ExamContract", function () {
         Status.Accepted,
       ]);
     });
+
+    it("Student1 should pass prog1 after failing the 'Orale' the first time", async function () {
+      const stud1Id = 100101;
+      await contract.addStudent(stud1, stud1Id);
+      await contract.addSubject(
+        prog1.id,
+        prog1.name,
+        prog1.cfu,
+        prog1.requiredCount,
+        prog1.subjectIdToUnlock
+      );
+      await contract.addAuthorizedProf(prog1.id, prof);
+      await profContract.setSubjectTests(prog1.id, prog1Tests);
+      await profContract.registerTestResults(prog1.id, 0, [{ mark: 26, studentId: stud1Id }]);
+      await profContract.registerTestResults(prog1.id, 1, [{ mark: 10, studentId: stud1Id }]);
+      expect(await stud1Contract.getTestMark(prog1.id, 1)).to.have.ordered.members([
+        0,
+        Status.NoVote,
+      ]);
+      // Can't repeat the test directly: must redo the 'Scritto'
+      await profContract.registerTestResults(prog1.id, 1, [{ mark: 30, studentId: stud1Id }]);
+      expect(await stud1Contract.getTestMark(prog1.id, 1)).to.have.ordered.members([
+        0,
+        Status.NoVote,
+      ]);
+      await profContract.registerTestResults(prog1.id, 0, [{ mark: 28, studentId: stud1Id }]);
+      await profContract.registerTestResults(prog1.id, 1, [{ mark: 30, studentId: stud1Id }]);
+      await profContract.registerSubjectResults(prog1.id, [{ mark: 29, studentId: stud1Id }]);
+      await stud1Contract.acceptSubjectResult(prog1.id);
+
+      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+        29,
+        Status.Accepted,
+      ]);
+    });
   });
 });
