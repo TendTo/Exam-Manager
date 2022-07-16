@@ -2,7 +2,6 @@
 pragma solidity ^0.8.0;
 
 import "./IExamContract.sol";
-import "hardhat/console.sol";
 
 contract ExamContract is IExamContract {
     address public immutable admin;
