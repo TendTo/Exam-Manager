@@ -181,26 +181,34 @@ describe("ExamContract", function () {
         testResults[0].mark,
         Status.Passed,
       ]);
-      expect(await stud2Contract.getTestMark(prog1.id, testIdx)).to.ordered.members([
+      expect(await stud2Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
         testResults[1].mark,
         Status.Passed,
       ]);
     });
 
-    it("Should not cost as much as a moth of pay", async function () {
-      const testIdx = 0;
-      const testResults = [...Array(100).keys()].map((i) => ({ mark: 30, studentId: i + 1 }));
+    it("Should not override an accepted test result", async function () {
+      const testIdx1 = 0, testIdx2 = 1;
+      const testResults1 = [
+        { mark: 18, studentId: 1 },
+      ];
+      const testResults2 = [
+        { mark: 19, studentId: 1 },
+      ];
 
       await profContract.setSubjectTests(prog1.id, prog1Tests);
-      await profContract.registerTestResults(prog1.id, testIdx, testResults);
-
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
-        testResults[0].mark,
-        Status.Passed,
+      await profContract.registerTestResults(prog1.id, testIdx1, testResults1);
+      await profContract.registerTestResults(prog1.id, testIdx2, testResults1);
+      // The fact that the student took the second test makes the first one accepted
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx1)).to.have.ordered.members([
+        testResults1[0].mark,
+        Status.Accepted,
       ]);
-      expect(await stud2Contract.getTestMark(prog1.id, testIdx)).to.ordered.members([
-        testResults[1].mark,
-        Status.Passed,
+      // If the professor tries to override an accepted test result, nothing changes
+      await profContract.registerTestResults(prog1.id, testIdx1, testResults2);
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx1)).to.have.ordered.members([
+        testResults1[0].mark,
+        Status.Accepted,
       ]);
     });
 
@@ -257,6 +265,22 @@ describe("ExamContract", function () {
       expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
         subjectResults[0].mark,
         Status.Passed,
+      ]);
+    });
+
+    it("Should not be able to override an accepted result", async function () {
+      const subjectResults1 = [{ mark: 18, studentId: 1 }];
+      const subjectResults2 = [{ mark: 30, studentId: 1 }];
+      await profContract.registerSubjectResults(prog1.id, subjectResults1);
+      await stud1Contract.acceptSubjectResult(prog1.id);
+      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+        subjectResults1[0].mark,
+        Status.Accepted,
+      ]);
+      await profContract.registerSubjectResults(prog1.id, subjectResults2);
+      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+        subjectResults1[0].mark,
+        Status.Accepted,
       ]);
     });
 
@@ -363,7 +387,7 @@ describe("ExamContract", function () {
     });
 
     it("Should raise 'SubjectNotAcceptableError'", async function () {
-      expect(stud1Contract.rejectSubjectResult(prog1.id))
+      expect(stud1Contract.resetSubject(prog1.id))
         .to.be.revertedWithCustomError(contract, Errors.SubjectNotAcceptableError)
         .withArgs(prog1.id, 1);
     });
@@ -372,7 +396,7 @@ describe("ExamContract", function () {
       const subjectResults = [{ mark: 24, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.acceptSubjectResult(prog1.id);
-      expect(stud1Contract.rejectSubjectResult(prog1.id))
+      expect(stud1Contract.resetSubject(prog1.id))
         .to.be.revertedWithCustomError(contract, Errors.SubjectAlreadyAcceptedError)
         .withArgs(prog1.id, 1);
     });
@@ -384,7 +408,7 @@ describe("ExamContract", function () {
         subjectResults[0].mark,
         Status.Passed,
       ]);
-      await stud1Contract.rejectSubjectResult(prog1.id);
+      await stud1Contract.resetSubject(prog1.id);
       expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
         0,
         Status.NoVote,
