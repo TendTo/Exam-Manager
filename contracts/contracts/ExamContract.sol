@@ -93,7 +93,7 @@ contract ExamContract is IExamContract {
         return careers[studentId].subjectResults[subjectId].testResults[testIdx];
     }
 
-    function getTestMark(uint8 subjectId, uint8 testIdx)
+    function getTestMark(uint256 subjectId, uint8 testIdx)
         external
         view
         testExists(subjectId, testIdx)
@@ -104,7 +104,7 @@ contract ExamContract is IExamContract {
         return (result.mark, result.testStatus);
     }
 
-    function getSubjectMark(uint8 subjectId) external view returns (uint8, Status) {
+    function getSubjectMark(uint256 subjectId) external view returns (uint8, Status) {
         uint256 studentId = studentIds[msg.sender];
         return (
             careers[studentId].subjectResults[subjectId].mark,
@@ -120,7 +120,7 @@ contract ExamContract is IExamContract {
 
     //region test methods
     function checkTestDependencies(
-        uint8 subjectId,
+        uint256 subjectId,
         uint8 testIdx,
         uint256 studentId
     ) private returns (bool) {
@@ -149,7 +149,7 @@ contract ExamContract is IExamContract {
     }
 
     function failTest(
-        uint8 subjectId,
+        uint256 subjectId,
         uint8 testIdx,
         uint256 studentId
     ) private {
@@ -164,7 +164,7 @@ contract ExamContract is IExamContract {
     }
 
     function resetTestOnTake(
-        uint8 subjectId,
+        uint256 subjectId,
         uint8 testIdx,
         uint256 studentId
     ) private {
@@ -176,7 +176,7 @@ contract ExamContract is IExamContract {
     }
 
     function passTest(
-        uint8 subjectId,
+        uint256 subjectId,
         uint8 testIdx,
         uint256 studentId,
         uint8 mark
@@ -189,7 +189,7 @@ contract ExamContract is IExamContract {
     }
 
     function registerTestResults(
-        uint8 subjectId,
+        uint256 subjectId,
         uint8 testIdx,
         StudentMark[] calldata testResults
     ) external isAuthorizedProf(subjectId) testExists(subjectId, testIdx) {
@@ -208,7 +208,7 @@ contract ExamContract is IExamContract {
         }
     }
 
-    function rejectTestResult(uint8 subjectId, uint8 testIdx)
+    function rejectTestResult(uint256 subjectId, uint8 testIdx)
         external
         testExists(subjectId, testIdx)
     {
@@ -247,7 +247,7 @@ contract ExamContract is IExamContract {
             subjects[subjectId].requiredCount);
     }
 
-    function registerSubjectResults(uint8 subjectId, StudentMark[] calldata subjectResults)
+    function registerSubjectResults(uint256 subjectId, StudentMark[] calldata subjectResults)
         external
         isAuthorizedProf(subjectId)
     {
@@ -257,12 +257,15 @@ contract ExamContract is IExamContract {
                 //TODO: emit event subject not registrable
                 continue;
             }
-            careers[subjectResults[i].studentId].subjectResults[subjectId].mark = subjectResults[i]
-                .mark;
+            SubjectResults storage result = careers[subjectResults[i].studentId].subjectResults[
+                subjectId
+            ];
+            result.mark = subjectResults[i].mark;
+            result.subjectStatus = Status.Passed;
         }
     }
 
-    function acceptSubjectResult(uint8 subjectId) external {
+    function acceptSubjectResult(uint256 subjectId) external {
         uint256 studentId = studentIds[msg.sender];
         SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
         if (subjectResult.subjectStatus == Status.NoVote) {
@@ -281,7 +284,7 @@ contract ExamContract is IExamContract {
         subjectResult.subjectStatus = Status.Accepted;
     }
 
-    function rejectSubjectResult(uint8 subjectId) external {
+    function rejectSubjectResult(uint256 subjectId) external {
         uint256 studentId = studentIds[msg.sender];
         SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
         if (subjectResult.subjectStatus == Status.NoVote) {

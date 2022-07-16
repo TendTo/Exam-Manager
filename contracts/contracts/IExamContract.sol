@@ -90,23 +90,23 @@ interface IExamContract {
     function getSubjectTests(uint256 subjectId) external view returns (Test[] memory);
 
     function registerTestResults(
-        uint8 subjectId,
+        uint256 subjectId,
         uint8 testIdx,
         StudentMark[] calldata testResults
     ) external;
 
-    function registerSubjectResults(uint8 subjectId, StudentMark[] calldata subjectResults)
+    function registerSubjectResults(uint256 subjectId, StudentMark[] calldata subjectResults)
         external;
 
-    function rejectTestResult(uint8 subjectId, uint8 testIdx) external;
+    function rejectTestResult(uint256 subjectId, uint8 testIdx) external;
 
-    function acceptSubjectResult(uint8 subjectId) external;
+    function acceptSubjectResult(uint256 subjectId) external;
 
-    function rejectSubjectResult(uint8 subjectId) external;
+    function rejectSubjectResult(uint256 subjectId) external;
 
     function resetSubject(uint256 subjectId) external;
 
-    function getTestMark(uint8 subjectId, uint8 testIdx) external view returns (uint8, Status);
+    function getTestMark(uint256 subjectId, uint8 testIdx) external view returns (uint8, Status);
 
-    function getSubjectMark(uint8 subjectId) external view returns (uint8, Status);
+    function getSubjectMark(uint256 subjectId) external view returns (uint8, Status);
 }
