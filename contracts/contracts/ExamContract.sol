@@ -277,7 +277,7 @@ contract ExamContract is IExamContract {
 
         uint256[] storage toUnlock = subjects[subjectId].subjectIdToUnlock;
         for (uint256 i = 0; i < toUnlock.length; i++) {
-            careers[studentId].subjectResults[subjectId].unlockCounter++;
+            careers[studentId].subjectResults[toUnlock[i]].unlockCounter++;
         }
 
         //TODO: Event for subject result accepted
