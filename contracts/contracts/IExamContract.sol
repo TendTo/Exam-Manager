@@ -16,7 +16,6 @@ interface IExamContract {
         string name;
         uint256 expiresIn;
         uint8 minMark;
-        bool optional;
         uint8[][] testIdxRequired;
         uint8[] testIdxReset;
         uint8[] testIdxResetOnTake;
