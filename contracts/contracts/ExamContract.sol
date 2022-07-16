@@ -125,6 +125,10 @@ contract ExamContract is IExamContract {
         uint256 studentId
     ) private returns (bool) {
         uint8[][] storage deps = subjects[subjectId].tests[testIdx].testIdxRequired;
+        if (
+            careers[studentId].subjectResults[subjectId].testResults[testIdx].testStatus ==
+            Status.Accepted
+        ) return false;
 
         if (deps.length == 0) return true;
 
@@ -197,13 +201,13 @@ contract ExamContract is IExamContract {
         for (uint256 i = 0; i < testResults.length; i++) {
             resetTestOnTake(subjectId, testIdx, testResults[i].studentId);
             if (testResults[i].mark < minMark) {
-                //TODO: Emit not passed
                 failTest(subjectId, testIdx, testResults[i].studentId);
+                emit TestFailed(subjectId, testIdx, testResults[i].studentId, testResults[i].mark);
             } else if (checkTestDependencies(subjectId, testIdx, testResults[i].studentId)) {
-                // TODO: Emit passed
                 passTest(subjectId, testIdx, testResults[i].studentId, testResults[i].mark);
+                emit TestPassed(subjectId, testIdx, testResults[i].studentId, testResults[i].mark);
             } else {
-                // TODO: Emit event student not authorized to take test
+                emit MissingTestRequirements(subjectId, testIdx, testResults[i].studentId);
             }
         }
     }
@@ -219,8 +223,8 @@ contract ExamContract is IExamContract {
         ) {
             revert TestAlreadyAcceptedError(subjectId, testIdx, studentId);
         }
-        //TODO: Event for test result rejected
         failTest(subjectId, testIdx, studentId);
+        emit TestRejected(subjectId, testIdx, studentId);
     }
 
     //endregion
@@ -244,7 +248,8 @@ contract ExamContract is IExamContract {
         returns (bool)
     {
         return (careers[studentId].subjectResults[subjectId].unlockCounter >=
-            subjects[subjectId].requiredCount);
+            subjects[subjectId].requiredCount &&
+            careers[studentId].subjectResults[subjectId].subjectStatus != Status.Accepted);
     }
 
     function registerSubjectResults(uint256 subjectId, StudentMark[] calldata subjectResults)
@@ -254,7 +259,7 @@ contract ExamContract is IExamContract {
         for (uint256 i = 0; i < subjectResults.length; i++) {
             bool valid = checkSubjectDependencies(subjectId, subjectResults[i].studentId);
             if (!valid) {
-                //TODO: emit event subject not registrable
+                emit MissingSubjectRequrements(subjectId, subjectResults[i].studentId);
                 continue;
             }
             SubjectResults storage result = careers[subjectResults[i].studentId].subjectResults[
@@ -279,23 +284,8 @@ contract ExamContract is IExamContract {
         for (uint256 i = 0; i < toUnlock.length; i++) {
             careers[studentId].subjectResults[toUnlock[i]].unlockCounter++;
         }
-
-        //TODO: Event for subject result accepted
         subjectResult.subjectStatus = Status.Accepted;
-    }
-
-    function rejectSubjectResult(uint256 subjectId) external {
-        uint256 studentId = studentIds[msg.sender];
-        SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
-        if (subjectResult.subjectStatus == Status.NoVote) {
-            revert SubjectNotAcceptableError(subjectId, studentId);
-        }
-        if (subjectResult.subjectStatus == Status.Accepted) {
-            revert SubjectAlreadyAcceptedError(subjectId, studentId);
-        }
-
-        //TODO: Event for subject result accepted
-        resetSubjectResults(subjectId);
+        emit SubjectAccepted(subjectId, studentId, subjectResult.mark);
     }
 
     function resetSubjectResults(uint256 subjectId) internal {
@@ -307,7 +297,14 @@ contract ExamContract is IExamContract {
     }
 
     function resetSubject(uint256 subjectId) external {
+        uint256 studentId = studentIds[msg.sender];
+        SubjectResults storage subjectResult = careers[studentId].subjectResults[subjectId];
+
+        if (subjectResult.subjectStatus == Status.Accepted) {
+            revert SubjectAlreadyAcceptedError(subjectId, studentId);
+        }
         resetSubjectResults(subjectId);
+        emit SubjectResetted(subjectId, studentId);
     }
     //endregion
 }
