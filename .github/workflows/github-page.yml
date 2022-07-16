@@ -1,0 +1,53 @@
+name: GitHub page
+
+on:
+  push:
+    branches: [master]
+    paths:
+      - app/**
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./app
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Install dependencies
+        run: npm install
+
+      # - name: Patch web3
+      #   run: npx patch-package
+
+      # - name: Run the tests and generate coverage report
+      #   run: npm test -- --coverage
+
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v2
+
+      - name: Build
+        run: npm run build
+        env:
+          NODE_PATH: ./src
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }}
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages # The branch the action should deploy to.
+          folder: app/build # The folder the action should deploy.
