@@ -153,10 +153,13 @@ contract ExamContract is IExamContract {
         uint8 testIdx,
         uint256 studentId
     ) private {
+        TestResult storage test = getTestResult(studentId, subjectId, testIdx);
+        test.mark = 0;
+        test.testStatus = Status.NoVote;
         uint8[] storage reset = subjects[subjectId].tests[testIdx].testIdxReset;
         for (uint8 i = 0; i < reset.length; i++) {
-            TestResult storage t = getTestResult(studentId, subjectId, reset[i]);
-            t.testStatus = Status.NoVote;
+            TestResult storage testToReset = getTestResult(studentId, subjectId, reset[i]);
+            testToReset.testStatus = Status.NoVote;
         }
     }
 
@@ -210,10 +213,10 @@ contract ExamContract is IExamContract {
         testExists(subjectId, testIdx)
     {
         uint256 studentId = studentIds[msg.sender];
-        TestResult storage result = careers[studentId].subjectResults[subjectId].testResults[
-            testIdx
-        ];
-        if (result.testStatus == Status.Accepted) {
+        if (
+            careers[studentId].subjectResults[subjectId].testResults[testIdx].testStatus ==
+            Status.Accepted
+        ) {
             revert TestAlreadyAcceptedError(subjectId, testIdx, studentId);
         }
         //TODO: Event for test result rejected
