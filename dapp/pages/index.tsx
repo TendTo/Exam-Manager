@@ -1,29 +1,28 @@
-import { Localhost, useCall, useEtherBalance, useEthers, useLogs } from "@usedapp/core";
+import { useEtherBalance, useEthers } from "@usedapp/core";
 import { useThemeContext } from "context";
 import type { NextPage } from "next";
 import Link from "next/link";
-import { ExamContract__factory, ExamContract } from "types";
-import config from "config/contracts.json";
-import { useTestPassedLogs } from "hooks/useTestPassedLogs";
+import { utils } from "ethers";
+import { useAdmin, useGetSubjectTests, useGetTestMark } from "hooks";
 
 const Home: NextPage = () => {
   const { account, activateBrowserWallet, library } = useEthers();
-  const balance = useEtherBalance(account, { chainId: Localhost.chainId });
-  const contract = library ? ExamContract__factory.connect(config.examContractAddress, library) : undefined;
+  const balance = useEtherBalance(account);
   const { state } = useThemeContext();
-
-  const { value, error  } = useTestPassedLogs();
-  //console.log(value, error)
+  const { value } = useAdmin(library);
+  const { value: tests } = useGetSubjectTests(library, 72440);
+  const { value: testResult } = useGetTestMark(library, 72440, 0, 1010);
+  console.log("tests", tests);
+  console.log("testResult", testResult);
   return (
     <div>
       <div>L'admin è {value}</div>
-      <div>Il contratto è deployato all'indirizzo {contract?.address}</div>
       <div>Account: {account ?? "no account"}</div>
-      <div>Balance: {balance ? balance.toString() : "No banane"}</div>
+      <div>Balance: {balance ? `${utils.formatEther(balance)} ETH` : "No banane"}</div>
       <button onClick={activateBrowserWallet}>Login</button>
       <br />
       <div>{state}</div>
-      <Link href='/students'>
+      <Link href="/students">
         <a>Go student</a>
       </Link>
     </div>
