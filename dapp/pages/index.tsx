@@ -1,32 +1,41 @@
-import { useEtherBalance, useEthers } from "@usedapp/core";
-import { useThemeContext } from "context";
-import type { NextPage } from "next";
-import Link from "next/link";
-import { utils } from "ethers";
-import { useAdmin, useGetSubjectTests, useGetTestMark } from "hooks";
+import { useEthers } from "@usedapp/core";
+import { LogoMetamask } from "components";
+import { useEffect } from "react";
+import { useRouter } from "next/router";
+import { useAdmin } from "hooks";
 
-const Home: NextPage = () => {
-  const { account, activateBrowserWallet, library } = useEthers();
-  const balance = useEtherBalance(account);
-  const { state } = useThemeContext();
-  const { value } = useAdmin(library);
-  const { value: tests } = useGetSubjectTests(library, 72440);
-  const { value: testResult } = useGetTestMark(library, 72440, 0, 1010);
-  console.log("tests", tests);
-  console.log("testResult", testResult);
+export default function Home() {
+  const { activateBrowserWallet, account, library } = useEthers();
+  const { value: admin } = useAdmin(library);
+  const router = useRouter();
+  
+  useEffect(() => {
+    if (account === undefined || admin === undefined) return;
+    if (account === admin[0]) {
+      router.push({
+        pathname: "/admin",
+      });
+    } else {
+      router.push({
+        pathname: "/students",
+      });
+    }
+  }, [account, admin]);
+
   return (
-    <div>
-      <div>L'admin è {value}</div>
-      <div>Account: {account ?? "no account"}</div>
-      <div>Balance: {balance ? `${utils.formatEther(balance)} ETH` : "No banane"}</div>
-      <button onClick={activateBrowserWallet}>Login</button>
-      <br />
-      <div>{state}</div>
-      <Link href="/students">
-        <a>Go student</a>
-      </Link>
+    <div className="hero min-h-full bg-base-200">
+      <div className="hero-content text-center">
+        <div className="max-w-md">
+          <h1 className="text-5xl font-bold">Exam Manager</h1>
+          <p className="py-6">
+            Piattaforma <b>ufficialissima</b> del dipartimento di Informatica di Catania per la
+            gestione degli esami universitari
+          </p>
+          <button className="btn btn-primary" onClick={activateBrowserWallet}>
+            Login con <LogoMetamask />
+          </button>
+        </div>
+      </div>
     </div>
   );
-};
-
-export default Home;
+}
