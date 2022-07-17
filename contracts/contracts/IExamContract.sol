@@ -128,7 +128,7 @@ interface IExamContract {
 
     function resetSubject(uint256 subjectId) external;
 
-    function getTestMark(uint256 subjectId, uint8 testIdx) external view returns (uint8, Status);
+    function getTestMark(uint256 subjectId, uint8 testIdx, uint256 studentId) external view returns (uint8, Status);
 
-    function getSubjectMark(uint256 subjectId) external view returns (uint8, Status);
+    function getSubjectMark(uint256 subjectId, uint256 studentId) external view returns (uint8, Status);
 }

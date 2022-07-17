@@ -92,19 +92,16 @@ contract ExamContract is IExamContract {
         return careers[studentId].subjectResults[subjectId].testResults[testIdx];
     }
 
-    function getTestMark(uint256 subjectId, uint8 testIdx)
-        external
-        view
-        testExists(subjectId, testIdx)
-        returns (uint8, Status)
-    {
-        uint256 studentId = studentIds[msg.sender];
+    function getTestMark(
+        uint256 subjectId,
+        uint8 testIdx,
+        uint256 studentId
+    ) external view testExists(subjectId, testIdx) returns (uint8, Status) {
         TestResult storage result = getTestResult(studentId, subjectId, testIdx);
         return (result.mark, result.testStatus);
     }
 
-    function getSubjectMark(uint256 subjectId) external view returns (uint8, Status) {
-        uint256 studentId = studentIds[msg.sender];
+    function getSubjectMark(uint256 subjectId, uint256 studentId) external view returns (uint8, Status) {
         return (
             careers[studentId].subjectResults[subjectId].mark,
             careers[studentId].subjectResults[subjectId].subjectStatus

@@ -177,36 +177,33 @@ describe("ExamContract", function () {
       await profContract.setSubjectTests(prog1.id, prog1Tests);
       await profContract.registerTestResults(prog1.id, testIdx, testResults);
 
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx, 1)).to.have.ordered.members([
         testResults[0].mark,
         Status.Passed,
       ]);
-      expect(await stud2Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
+      expect(await stud2Contract.getTestMark(prog1.id, testIdx, 2)).to.have.ordered.members([
         testResults[1].mark,
         Status.Passed,
       ]);
     });
 
     it("Should not override an accepted test result", async function () {
-      const testIdx1 = 0, testIdx2 = 1;
-      const testResults1 = [
-        { mark: 18, studentId: 1 },
-      ];
-      const testResults2 = [
-        { mark: 19, studentId: 1 },
-      ];
+      const testIdx1 = 0,
+        testIdx2 = 1;
+      const testResults1 = [{ mark: 18, studentId: 1 }];
+      const testResults2 = [{ mark: 19, studentId: 1 }];
 
       await profContract.setSubjectTests(prog1.id, prog1Tests);
       await profContract.registerTestResults(prog1.id, testIdx1, testResults1);
       await profContract.registerTestResults(prog1.id, testIdx2, testResults1);
       // The fact that the student took the second test makes the first one accepted
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx1)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx1, 1)).to.have.ordered.members([
         testResults1[0].mark,
         Status.Accepted,
       ]);
       // If the professor tries to override an accepted test result, nothing changes
       await profContract.registerTestResults(prog1.id, testIdx1, testResults2);
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx1)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx1, 1)).to.have.ordered.members([
         testResults1[0].mark,
         Status.Accepted,
       ]);
@@ -230,21 +227,21 @@ describe("ExamContract", function () {
       await profContract.registerTestResults(prog1.id, testIdx2, testResults2);
 
       // Since he took the second test, the first one is now locked with the status 'Accepted'
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx1)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx1, 1)).to.have.ordered.members([
         testResults1[0].mark,
         Status.Accepted,
       ]);
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx2)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx2, 1)).to.have.ordered.members([
         testResults2[0].mark,
         Status.Passed,
       ]);
       // No votes have been registered for the second student, because he didn't pass the first test
       // and could not take the second test
-      expect(await stud2Contract.getTestMark(prog1.id, testIdx1)).to.have.ordered.members([
+      expect(await stud2Contract.getTestMark(prog1.id, testIdx1, 2)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
-      expect(await stud2Contract.getTestMark(prog1.id, testIdx2)).to.have.ordered.members([
+      expect(await stud2Contract.getTestMark(prog1.id, testIdx2, 2)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
@@ -253,7 +250,7 @@ describe("ExamContract", function () {
     it("Should not register a subject result if the requirements are not met", async function () {
       const subjectResults = [{ mark: 18, studentId: 1 }];
       await profContract.registerSubjectResults(prog2.id, subjectResults);
-      expect(await stud1Contract.getSubjectMark(prog2.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog2.id, 1)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
@@ -262,7 +259,7 @@ describe("ExamContract", function () {
     it("Should register a subject result if there are no requirements", async function () {
       const subjectResults = [{ mark: 18, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, 1)).to.have.ordered.members([
         subjectResults[0].mark,
         Status.Passed,
       ]);
@@ -273,12 +270,12 @@ describe("ExamContract", function () {
       const subjectResults2 = [{ mark: 30, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults1);
       await stud1Contract.acceptSubjectResult(prog1.id);
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, 1)).to.have.ordered.members([
         subjectResults1[0].mark,
         Status.Accepted,
       ]);
       await profContract.registerSubjectResults(prog1.id, subjectResults2);
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, 1)).to.have.ordered.members([
         subjectResults1[0].mark,
         Status.Accepted,
       ]);
@@ -288,7 +285,7 @@ describe("ExamContract", function () {
       const subjectResults = [{ mark: 18, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await profContract.registerSubjectResults(prog2.id, subjectResults);
-      expect(await stud1Contract.getSubjectMark(prog2.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog2.id, 1)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
@@ -299,7 +296,7 @@ describe("ExamContract", function () {
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.acceptSubjectResult(prog1.id);
       await profContract.registerSubjectResults(prog2.id, subjectResults);
-      expect(await stud1Contract.getSubjectMark(prog2.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog2.id, 1)).to.have.ordered.members([
         subjectResults[0].mark,
         Status.Passed,
       ]);
@@ -319,7 +316,7 @@ describe("ExamContract", function () {
       const testResults = [{ mark: 18, studentId: 1 }];
 
       await profContract.registerTestResults(prog1.id, testIdx, testResults);
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx, 1)).to.have.ordered.members([
         testResults[0].mark,
         Status.Passed,
       ]);
@@ -349,13 +346,13 @@ describe("ExamContract", function () {
       const testResults = [{ mark: 18, studentId: 1 }];
 
       await profContract.registerTestResults(prog1.id, testIdx, testResults);
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx, 1)).to.have.ordered.members([
         18,
         Status.Passed,
       ]);
 
       await stud1Contract.rejectTestResult(prog1.id, testIdx);
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx, 1)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
@@ -380,7 +377,7 @@ describe("ExamContract", function () {
       const subjectResults = [{ mark: 24, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.acceptSubjectResult(prog1.id);
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, 1)).to.have.ordered.members([
         subjectResults[0].mark,
         Status.Accepted,
       ]);
@@ -404,12 +401,12 @@ describe("ExamContract", function () {
     it("Should reject a subject and reset it", async function () {
       const subjectResults = [{ mark: 24, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, 1)).to.have.ordered.members([
         subjectResults[0].mark,
         Status.Passed,
       ]);
       await stud1Contract.resetSubject(prog1.id);
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, 1)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
@@ -423,11 +420,11 @@ describe("ExamContract", function () {
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.resetSubject(prog1.id);
 
-      expect(await stud1Contract.getTestMark(prog1.id, testIdx)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, testIdx, 1)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, 1)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
@@ -452,7 +449,7 @@ describe("ExamContract", function () {
       await profContract.registerSubjectResults(prog1.id, [{ mark: 28, studentId: stud1Id }]);
       await stud1Contract.acceptSubjectResult(prog1.id);
 
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, stud1Id)).to.have.ordered.members([
         28,
         Status.Accepted,
       ]);
@@ -472,13 +469,13 @@ describe("ExamContract", function () {
       await profContract.setSubjectTests(prog1.id, prog1Tests);
       await profContract.registerTestResults(prog1.id, 0, [{ mark: 26, studentId: stud1Id }]);
       await profContract.registerTestResults(prog1.id, 1, [{ mark: 10, studentId: stud1Id }]);
-      expect(await stud1Contract.getTestMark(prog1.id, 1)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, 1, stud1Id)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
       // Can't repeat the test directly: must redo the 'Scritto'
       await profContract.registerTestResults(prog1.id, 1, [{ mark: 30, studentId: stud1Id }]);
-      expect(await stud1Contract.getTestMark(prog1.id, 1)).to.have.ordered.members([
+      expect(await stud1Contract.getTestMark(prog1.id, 1, stud1Id)).to.have.ordered.members([
         0,
         Status.NoVote,
       ]);
@@ -487,7 +484,7 @@ describe("ExamContract", function () {
       await profContract.registerSubjectResults(prog1.id, [{ mark: 29, studentId: stud1Id }]);
       await stud1Contract.acceptSubjectResult(prog1.id);
 
-      expect(await stud1Contract.getSubjectMark(prog1.id)).to.have.ordered.members([
+      expect(await stud1Contract.getSubjectMark(prog1.id, stud1Id)).to.have.ordered.members([
         29,
         Status.Accepted,
       ]);
