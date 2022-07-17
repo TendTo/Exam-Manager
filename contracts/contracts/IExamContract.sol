@@ -88,6 +88,7 @@ interface IExamContract {
     event SubjectAccepted(uint256 indexed subjectId, uint256 indexed studentId, uint8 mark);
     event SubjectResetted(uint256 indexed subjectId, uint256 indexed studentId);
     event MissingSubjectRequrements(uint256 indexed subjectId, uint256 indexed studentId);
+    event AuthorizedProfAdded(uint256 subjectId, address indexed profAddr);
 
     function addStudent(address addr, uint256 id) external;
 

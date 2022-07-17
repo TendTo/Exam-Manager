@@ -74,7 +74,11 @@ contract ExamContract is IExamContract {
     }
 
     function addAuthorizedProf(uint256 subjectId, address profAddr) external onlyAdmin {
-        subjects[subjectId].authorizedProf[profAddr] = true;
+        if(!subjects[subjectId].authorizedProf[profAddr]){
+            
+            subjects[subjectId].authorizedProf[profAddr] = true;
+            emit AuthorizedProfAdded(subjectId, profAddr);
+        }
     }
 
     function removeAuthorizedProf(uint256 subjectId, address profAddr) external onlyAdmin {
