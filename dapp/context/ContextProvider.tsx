@@ -1,9 +1,7 @@
-import { ThemeContextProvider } from "./themeContext";
-import { ChainId, Config, DAppProvider, Ropsten, Localhost } from "@usedapp/core";
+import { ChainId, Config, DAppProvider, Ropsten } from "@usedapp/core";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import adresses from "config/contracts.json";
 
 const config: Config = {
   readOnlyUrls: {
@@ -12,24 +10,15 @@ const config: Config = {
   networks: [Ropsten],
 };
 
-// const config: Config = {
-//   readOnlyUrls: {
-//     [Localhost.chainId]: `http://127.0.0.1:7545`,
-//   },
-//   networks: [{...Localhost, multicallAddress: adresses.multicallAddress}],
-// };
-
 type ContextProviderProps = {
   children: React.ReactNode;
 };
 
 export function ContextProvider({ children }: ContextProviderProps) {
   return (
-    <ThemeContextProvider>
       <DAppProvider config={config}>
         {children}
         <ToastContainer />
       </DAppProvider>
-    </ThemeContextProvider>
   );
 }
