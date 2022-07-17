@@ -5,10 +5,12 @@
     "compile": "hardhat compile",
     "coverage": "hardhat coverage",
     "deploy:ganache": "hardhat run --network ganache scripts/deployExam.ts",
-    "deploy:multicall": "hardhat run --network ganache scripts/deployMulticall.ts"
+    "deploy:multicall": "hardhat run --network ganache scripts/deployMulticall.ts",
+    "deploy:ropsten": "hardhat run --network ropsten scripts/deployExam.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^1.0.1",
+    "dotenv": "^16.0.1",
     "hardhat": "^2.10.0"
   },
   "description": "This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.",
