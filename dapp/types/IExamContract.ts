@@ -243,6 +243,7 @@ export interface IExamContractInterface extends utils.Interface {
   ): Result;
 
   events: {
+    "AuthorizedProfAdded(uint256,address)": EventFragment;
     "MissingSubjectRequrements(uint256,uint256)": EventFragment;
     "MissingTestRequirements(uint256,uint8,uint256)": EventFragment;
     "SubjectAccepted(uint256,uint256,uint8)": EventFragment;
@@ -253,6 +254,7 @@ export interface IExamContractInterface extends utils.Interface {
     "TestResetted(uint256,uint8,uint256)": EventFragment;
   };
 
+  getEvent(nameOrSignatureOrTopic: "AuthorizedProfAdded"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MissingSubjectRequrements"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "MissingTestRequirements"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "SubjectAccepted"): EventFragment;
@@ -262,6 +264,18 @@ export interface IExamContractInterface extends utils.Interface {
   getEvent(nameOrSignatureOrTopic: "TestRejected"): EventFragment;
   getEvent(nameOrSignatureOrTopic: "TestResetted"): EventFragment;
 }
+
+export interface AuthorizedProfAddedEventObject {
+  subjectId: BigNumber;
+  profAddr: string;
+}
+export type AuthorizedProfAddedEvent = TypedEvent<
+  [BigNumber, string],
+  AuthorizedProfAddedEventObject
+>;
+
+export type AuthorizedProfAddedEventFilter =
+  TypedEventFilter<AuthorizedProfAddedEvent>;
 
 export interface MissingSubjectRequrementsEventObject {
   subjectId: BigNumber;
@@ -680,6 +694,15 @@ export interface IExamContract extends BaseContract {
   };
 
   filters: {
+    "AuthorizedProfAdded(uint256,address)"(
+      subjectId?: null,
+      profAddr?: PromiseOrValue<string> | null
+    ): AuthorizedProfAddedEventFilter;
+    AuthorizedProfAdded(
+      subjectId?: null,
+      profAddr?: PromiseOrValue<string> | null
+    ): AuthorizedProfAddedEventFilter;
+
     "MissingSubjectRequrements(uint256,uint256)"(
       subjectId?: PromiseOrValue<BigNumberish> | null,
       studentId?: PromiseOrValue<BigNumberish> | null
