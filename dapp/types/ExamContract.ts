@@ -73,9 +73,9 @@ export interface ExamContractInterface extends utils.Interface {
     "admin()": FunctionFragment;
     "careers(uint256)": FunctionFragment;
     "deleteStudent(address)": FunctionFragment;
-    "getSubjectMark(uint256)": FunctionFragment;
+    "getSubjectMark(uint256,uint256)": FunctionFragment;
     "getSubjectTests(uint256)": FunctionFragment;
-    "getTestMark(uint256,uint8)": FunctionFragment;
+    "getTestMark(uint256,uint8,uint256)": FunctionFragment;
     "isProfAuthorized(uint256,address)": FunctionFragment;
     "registerSubjectResults(uint256,(uint256,uint8)[])": FunctionFragment;
     "registerTestResults(uint256,uint8,(uint256,uint8)[])": FunctionFragment;
@@ -145,7 +145,7 @@ export interface ExamContractInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getSubjectMark",
-    values: [PromiseOrValue<BigNumberish>]
+    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
   ): string;
   encodeFunctionData(
     functionFragment: "getSubjectTests",
@@ -153,7 +153,11 @@ export interface ExamContractInterface extends utils.Interface {
   ): string;
   encodeFunctionData(
     functionFragment: "getTestMark",
-    values: [PromiseOrValue<BigNumberish>, PromiseOrValue<BigNumberish>]
+    values: [
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>,
+      PromiseOrValue<BigNumberish>
+    ]
   ): string;
   encodeFunctionData(
     functionFragment: "isProfAuthorized",
@@ -449,6 +453,7 @@ export interface ExamContract extends BaseContract {
 
     getSubjectMark(
       subjectId: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[number, number]>;
 
@@ -460,6 +465,7 @@ export interface ExamContract extends BaseContract {
     getTestMark(
       subjectId: PromiseOrValue<BigNumberish>,
       testIdx: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[number, number]>;
 
@@ -567,6 +573,7 @@ export interface ExamContract extends BaseContract {
 
   getSubjectMark(
     subjectId: PromiseOrValue<BigNumberish>,
+    studentId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<[number, number]>;
 
@@ -578,6 +585,7 @@ export interface ExamContract extends BaseContract {
   getTestMark(
     subjectId: PromiseOrValue<BigNumberish>,
     testIdx: PromiseOrValue<BigNumberish>,
+    studentId: PromiseOrValue<BigNumberish>,
     overrides?: CallOverrides
   ): Promise<[number, number]>;
 
@@ -685,6 +693,7 @@ export interface ExamContract extends BaseContract {
 
     getSubjectMark(
       subjectId: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[number, number]>;
 
@@ -696,6 +705,7 @@ export interface ExamContract extends BaseContract {
     getTestMark(
       subjectId: PromiseOrValue<BigNumberish>,
       testIdx: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<[number, number]>;
 
@@ -894,6 +904,7 @@ export interface ExamContract extends BaseContract {
 
     getSubjectMark(
       subjectId: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -905,6 +916,7 @@ export interface ExamContract extends BaseContract {
     getTestMark(
       subjectId: PromiseOrValue<BigNumberish>,
       testIdx: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -1007,6 +1019,7 @@ export interface ExamContract extends BaseContract {
 
     getSubjectMark(
       subjectId: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -1018,6 +1031,7 @@ export interface ExamContract extends BaseContract {
     getTestMark(
       subjectId: PromiseOrValue<BigNumberish>,
       testIdx: PromiseOrValue<BigNumberish>,
+      studentId: PromiseOrValue<BigNumberish>,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 

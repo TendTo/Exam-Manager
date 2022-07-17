@@ -489,6 +489,11 @@ const _abi = [
         name: "subjectId",
         type: "uint256",
       },
+      {
+        internalType: "uint256",
+        name: "studentId",
+        type: "uint256",
+      },
     ],
     name: "getSubjectMark",
     outputs: [
@@ -568,6 +573,11 @@ const _abi = [
         internalType: "uint8",
         name: "testIdx",
         type: "uint8",
+      },
+      {
+        internalType: "uint256",
+        name: "studentId",
+        type: "uint256",
       },
     ],
     name: "getTestMark",
