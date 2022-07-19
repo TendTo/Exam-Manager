@@ -69,13 +69,13 @@ contract ExamContract is IExamContract {
         subject.subjectIdToUnlock = subjectIdToUnlock;
     }
 
+    // TODO: REMOVE the method, not the subject
     function removeSubject(uint256 subjectId) external onlyAdmin {
         delete subjects[subjectId];
     }
 
     function addAuthorizedProf(uint256 subjectId, address profAddr) external onlyAdmin {
-        if(!subjects[subjectId].authorizedProf[profAddr]){
-            
+        if (!subjects[subjectId].authorizedProf[profAddr]) {
             subjects[subjectId].authorizedProf[profAddr] = true;
             emit AuthorizedProfAdded(subjectId, profAddr);
         }
@@ -105,7 +105,11 @@ contract ExamContract is IExamContract {
         return (result.mark, result.testStatus);
     }
 
-    function getSubjectMark(uint256 subjectId, uint256 studentId) external view returns (uint8, Status) {
+    function getSubjectMark(uint256 subjectId, uint256 studentId)
+        external
+        view
+        returns (uint8, Status)
+    {
         return (
             careers[studentId].subjectResults[subjectId].mark,
             careers[studentId].subjectResults[subjectId].subjectStatus
