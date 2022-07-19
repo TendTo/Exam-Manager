@@ -11,6 +11,9 @@ export default function LoginGuard({ children, router }: React.PropsWithChildren
 
   useEffect(() => {
     switch (user) {
+      case "notLogged":
+        router.push("/");
+        break;
       case "admin":
         router.replace("/admin");
         break;
