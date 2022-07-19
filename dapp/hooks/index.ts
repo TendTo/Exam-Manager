@@ -18,16 +18,6 @@ export * from "./useGetTestMark";
 export * from "./useGetSubjectMark";
 export * from "./useTestPassedLogs";
 export * from "./useTestFailedLogs";
-
-
-// event TestRejected(uint256 indexed subjectId, uint8 indexed testIdx, uint256 indexed studentId);
-// event MissingTestRequirements(
-//     uint256 indexed subjectId,
-//     uint8 indexed testIdx,
-//     uint256 indexed studentId
-// );
-// event TestResetted(uint256 indexed subjectId, uint8 indexed testIdx, uint256 indexed studentId);
-
-// event SubjectAccepted(uint256 indexed subjectId, uint256 indexed studentId, uint8 mark);
-// event SubjectResetted(uint256 indexed subjectId, uint256 indexed studentId);
-// event MissingSubjectRequrements(uint256 indexed subjectId, uint256 indexed studentId);
+export * from "./useStudentIds";
+export * from "./useAuthorizedProfAddedLogs";
+export * from "./useLogin";
