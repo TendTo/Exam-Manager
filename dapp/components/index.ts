@@ -5,3 +5,5 @@ export { default as LogoUnict } from "./logoUnict";
 export { default as LogoGitHub } from "./logoGitHub";
 export { default as LogoMetamask } from "./logoMetamask";
 export { default as LoginGuard } from "./loginGuard";
+export {default as ContractFunction} from "./contractFunction";
+export {default as FieldFunction} from "./fieldFunction";
