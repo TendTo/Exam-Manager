@@ -8,6 +8,7 @@ type LoginGuardProps = {
 
 export default function LoginGuard({ children, router }: React.PropsWithChildren<LoginGuardProps>) {
   const { user } = useLogin();
+  console.log(user);
 
   useEffect(() => {
     switch (user) {
@@ -18,7 +19,7 @@ export default function LoginGuard({ children, router }: React.PropsWithChildren
         router.replace("/admin");
         break;
       case "student":
-        router.replace("/student");
+        router.replace("/students");
         break;
       case "professor":
         router.replace("/professor");

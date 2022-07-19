@@ -24,8 +24,10 @@ export function useLogin() {
   const [user, setUser] = useState<UserContextType>("notLogged");
 
   const contractCall = useCallback(async () => {
-    if (!library || !account || !chainId)
+    if (!library || !account || !chainId) {
+      setUser("notLogged");
       return { admin: undefined, studentId: undefined, logs: [] };
+    }
     const contract = ExamContract__factory.connect(config.examContractAddress, library);
     const filter = contract.filters.AuthorizedProfAdded(null, account);
     const [admin, studentId, logs] = await Promise.all([
