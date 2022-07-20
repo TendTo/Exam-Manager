@@ -21,3 +21,4 @@ export * from "./useTestFailedLogs";
 export * from "./useStudentIds";
 export * from "./useAuthorizedProfAddedLogs";
 export * from "./useLogin";
+export * from "./useStudentFunctions";

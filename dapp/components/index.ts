@@ -7,5 +7,3 @@ export { default as LogoMetamask } from "./logos/logoMetamask";
 export { default as LoginGuard } from "./loginGuard";
 export { default as ContractFunction } from "./contractFunction";
 export { default as SimpleField } from "./form/simpleField";
-export { default as ObjectField } from "./form/objectField";
-export { default as ArrayField } from "./form/arrayField";

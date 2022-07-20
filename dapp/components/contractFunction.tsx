@@ -1,16 +1,14 @@
-import { useRef, createRef, RefObject, FormEventHandler, FormEvent } from "react";
-import { ExamContract } from "types";
-import SimpleField from "./form/simpleField";
-import { getBackendParsing, InputType } from "utils/parsing";
+import SimpleField, { FieldProps } from "./form/simpleField";
+import { useForm } from "react-hook-form";
 
 type ContractCallProps = {
   title: string;
   description: string;
-  fields: {
-    label: string;
-    type: InputType;
-  }[];
+  fields: Omit<FieldProps, "register">[];
   callback: (...args: any[]) => void;
+};
+type ContractFormData<T extends Omit<FieldProps, "register">[]> = {
+  [K in T[number]["name"]]: string;
 };
 
 export default function ContractFunction({
@@ -19,15 +17,15 @@ export default function ContractFunction({
   fields,
   callback,
 }: ContractCallProps) {
-  const refs = useRef<RefObject<HTMLInputElement>[]>(fields.map(() => createRef()));
-
-  const submitFunction = (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const values = refs.current.map((ref, i) =>
-      getBackendParsing(fields[i].type)(ref.current?.value)
-    );
-    callback(...values);
-  };
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<ContractFormData<typeof fields>>();
+  const onSubmit = handleSubmit((data) => {
+    // callback(...data)
+    console.log(Object.values(data));
+  });
 
   return (
     <div
@@ -39,15 +37,20 @@ export default function ContractFunction({
       <div className="collapse-content">
         <p>{description}</p>
         <div className="divider"></div>
-        <form onSubmit={submitFunction}>
+        <form onSubmit={onSubmit}>
           <div className="form-control flex flex-col gap-4 mb-4">
-            {fields.map((field, i) => (
-              <SimpleField key={i} label={field.label} type={field.type} ref={refs.current[i]} />
+            {fields.map((field) => (
+              <SimpleField
+                key={`${field.label}-${field.name}`}
+                label={field.label}
+                type={field.type}
+                register={register}
+                name={field.name}
+                errorMessage={errors[field.name]?.message}
+              />
             ))}
           </div>
-          <button type="submit" className="btn btn-primary">
-            Ok
-          </button>
+          <input type="submit" className="btn btn-primary" value="Invia" />
         </form>
       </div>
     </div>
