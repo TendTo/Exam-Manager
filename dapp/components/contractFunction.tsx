@@ -1,13 +1,14 @@
 import { useRef, createRef, RefObject, FormEventHandler, FormEvent } from "react";
 import { ExamContract } from "types";
-import FieldFunction from "./fieldFunction";
+import SimpleField from "./form/simpleField";
+import { getBackendParsing, InputType } from "utils/parsing";
 
 type ContractCallProps = {
   title: string;
   description: string;
   fields: {
     label: string;
-    type: string;
+    type: InputType;
   }[];
   callback: (...args: any[]) => void;
 };
@@ -22,7 +23,9 @@ export default function ContractFunction({
 
   const submitFunction = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const values = refs.current.map((ref) => ref.current?.value ?? "");
+    const values = refs.current.map((ref, i) =>
+      getBackendParsing(fields[i].type)(ref.current?.value)
+    );
     callback(...values);
   };
 
@@ -39,7 +42,7 @@ export default function ContractFunction({
         <form onSubmit={submitFunction}>
           <div className="form-control flex flex-col gap-4 mb-4">
             {fields.map((field, i) => (
-              <FieldFunction key={i} label={field.label} type={field.type} ref={refs.current[i]} />
+              <SimpleField key={i} label={field.label} type={field.type} ref={refs.current[i]} />
             ))}
           </div>
           <button type="submit" className="btn btn-primary">

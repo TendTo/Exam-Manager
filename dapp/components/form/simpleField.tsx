@@ -1,24 +1,22 @@
 import { forwardRef, ForwardedRef } from "react";
-import { ExamContract } from "types";
+import { getFrontendParsing, getBackendParsing, InputType } from "utils/parsing";
 
 type ContractCallProps = {
   label: string;
-  type: string;
+  type: InputType;
 };
 
 export default forwardRef(
   ({ label, type }: ContractCallProps, ref: ForwardedRef<HTMLInputElement>) => {
     return (
       <label className="input-group">
-        <span>
-          {label}
-        </span>
+        <span>{label}</span>
         <input
           ref={ref}
           name={label}
           placeholder="0x0000"
           className="input input-bordered"
-          {...{ type: "text",pattern:"0x[a-zA-F0-9]{40}" }}
+          {...getFrontendParsing(type)}
           required
         />
       </label>

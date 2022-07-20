@@ -1,9 +1,11 @@
 export { default as Layout } from "./layout";
 export { default as Header } from "./header";
 export { default as ThemeSwitcher } from "./themeSwitcher";
-export { default as LogoUnict } from "./logoUnict";
-export { default as LogoGitHub } from "./logoGitHub";
-export { default as LogoMetamask } from "./logoMetamask";
+export { default as LogoUnict } from "./logos/logoUnict";
+export { default as LogoGitHub } from "./logos/logoGitHub";
+export { default as LogoMetamask } from "./logos/logoMetamask";
 export { default as LoginGuard } from "./loginGuard";
-export {default as ContractFunction} from "./contractFunction";
-export {default as FieldFunction} from "./fieldFunction";
+export { default as ContractFunction } from "./contractFunction";
+export { default as SimpleField } from "./form/simpleField";
+export { default as ObjectField } from "./form/objectField";
+export { default as ArrayField } from "./form/arrayField";
