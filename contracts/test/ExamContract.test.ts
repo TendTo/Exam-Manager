@@ -42,10 +42,6 @@ describe("ExamContract", function () {
         contract,
         Errors.UnauthorizedAdminError
       );
-      await expect(profContract.removeSubject(1)).to.be.revertedWithCustomError(
-        contract,
-        Errors.UnauthorizedAdminError
-      );
       await expect(profContract.addAuthorizedProf(1, prof)).to.be.revertedWithCustomError(
         contract,
         Errors.UnauthorizedAdminError
@@ -101,14 +97,6 @@ describe("ExamContract", function () {
 
       const tests = await contract.getSubjectTests(prog1.id);
       expect(tests.length).to.equal(0);
-    });
-
-    it("Should remove a subject", async function () {
-      await addSubject(contract);
-      await contract.removeSubject(prog1.id);
-      const { name, cfu } = await contract.subjects(prog1.id);
-      expect(name).to.equal("");
-      expect(cfu).to.equal(0);
     });
 
     it("Should add an authorized prof to subject", async function () {

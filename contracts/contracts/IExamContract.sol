@@ -85,6 +85,7 @@ interface IExamContract {
     );
     event TestResetted(uint256 indexed subjectId, uint8 indexed testIdx, uint256 indexed studentId);
 
+    event SubjectPassed(uint256 indexed subjectId, uint256 indexed studentId);
     event SubjectAccepted(uint256 indexed subjectId, uint256 indexed studentId, uint8 mark);
     event SubjectResetted(uint256 indexed subjectId, uint256 indexed studentId);
     event MissingSubjectRequrements(uint256 indexed subjectId, uint256 indexed studentId);
@@ -101,8 +102,6 @@ interface IExamContract {
         uint8 requiredCount,
         uint256[] calldata subjectIdToUnlock
     ) external;
-
-    function removeSubject(uint256 subjectId) external;
 
     function addAuthorizedProf(uint256 subjectId, address profAddr) external;
 

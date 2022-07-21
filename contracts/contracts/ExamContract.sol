@@ -69,11 +69,6 @@ contract ExamContract is IExamContract {
         subject.subjectIdToUnlock = subjectIdToUnlock;
     }
 
-    // TODO: REMOVE the method, not the subject
-    function removeSubject(uint256 subjectId) external onlyAdmin {
-        delete subjects[subjectId];
-    }
-
     function addAuthorizedProf(uint256 subjectId, address profAddr) external onlyAdmin {
         if (!subjects[subjectId].authorizedProf[profAddr]) {
             subjects[subjectId].authorizedProf[profAddr] = true;
@@ -271,6 +266,7 @@ contract ExamContract is IExamContract {
             ];
             result.mark = subjectResults[i].mark;
             result.subjectStatus = Status.Passed;
+            emit SubjectPassed(subjectId, subjectResults[i].studentId);
         }
     }
 
