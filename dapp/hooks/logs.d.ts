@@ -23,7 +23,7 @@ type ValueType<T extends TypedContract, EN extends ContractEventNames<T>> = Deta
   data: EventReturn<T, EN>;
 };
 
-type UseLogsReturn<T extends TypedContract, EN extends ContractEventNames<T>> = LogsResult<
+export type UseLogsReturn<T extends TypedContract, EN extends ContractEventNames<T>> = LogsResult<
   T,
   EN
 > & {
