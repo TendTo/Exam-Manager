@@ -1,14 +1,15 @@
-import SimpleField, { FieldProps } from "./form/simpleField";
+import SimpleField, { FieldProperties } from "./form/simpleField";
 import { useForm } from "react-hook-form";
+import ArrayField from "./form/arrayField";
 
 type ContractCallProps = {
   title: string;
   description: string;
-  fields: Omit<FieldProps, "register">[];
+  fields: FieldProperties[];
   callback: (...args: any[]) => void;
 };
-type ContractFormData<T extends Omit<FieldProps, "register">[]> = {
-  [K in T[number]["name"]]: string;
+export type ContractFormData<T extends FieldProperties[]> = {
+  [K in T[number]["name"]]: string | number;
 };
 
 export default function ContractFunction({
@@ -18,13 +19,13 @@ export default function ContractFunction({
   callback,
 }: ContractCallProps) {
   const {
+    control,
     register,
     handleSubmit,
     formState: { errors },
   } = useForm<ContractFormData<typeof fields>>();
   const onSubmit = handleSubmit((data) => {
-    // callback(...data)
-    console.log(Object.values(data));
+    callback(...Object.values(data));
   });
 
   return (
@@ -39,16 +40,52 @@ export default function ContractFunction({
         <div className="divider"></div>
         <form onSubmit={onSubmit}>
           <div className="form-control flex flex-col gap-4 mb-4">
-            {fields.map((field) => (
-              <SimpleField
-                key={`${field.label}-${field.name}`}
-                label={field.label}
-                type={field.type}
-                register={register}
-                name={field.name}
-                errorMessage={errors[field.name]?.message}
-              />
-            ))}
+            {fields.map((field) => {
+              switch (field.type) {
+                case "array":
+                  return (
+                    <div key={`${title}-${field.name}`}>
+                      {field.label}
+                      <ArrayField
+                        control={control}
+                        subFields={field.subFields}
+                        key={`${title}-${field.name}`}
+                        label={field.label}
+                        register={register}
+                        name={field.name}
+                        errorMessage={errors[field.name] as any}
+                      />
+                    </div>
+                  );
+                case "object":
+                  return (
+                    <div key={`${title}-${field.name}`}>
+                      {field.label}
+                      {field.subFields.map((subField) => (
+                        <SimpleField
+                          key={`${title}-${field.name}-${subField.name}`}
+                          label={subField.label}
+                          type={subField.type}
+                          register={register}
+                          name={`${field.name}.${subField.name}`}
+                          errorMessage={errors[`${field.name}.${subField.name}`]?.message}
+                        />
+                      ))}
+                    </div>
+                  );
+                default:
+                  return (
+                    <SimpleField
+                      key={`${title}-${field.name}`}
+                      label={field.label}
+                      type={field.type}
+                      register={register}
+                      name={field.name}
+                      errorMessage={errors[field.name]?.message}
+                    />
+                  );
+              }
+            })}
           </div>
           <input type="submit" className="btn btn-primary" value="Invia" />
         </form>

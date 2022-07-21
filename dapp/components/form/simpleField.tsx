@@ -1,11 +1,20 @@
 import { UseFormRegister } from "react-hook-form";
 import { getFrontendParsing, InputType } from "utils/parsing";
 
-export type FieldProps = {
+type SingleFieldProperties = {
   name: string;
   label: string;
+  type: Exclude<InputType, "array" | "object">;
+};
+export type ComposedFieldProperties = {
+  name: string;
+  label: string;
+  type: "array" | "object";
+  subFields: SingleFieldProperties[];
+};
+export type FieldProperties = SingleFieldProperties | ComposedFieldProperties;
+export type FieldProps = FieldProperties & {
   register: UseFormRegister<any>;
-  type: InputType;
   errorMessage?: string;
 };
 

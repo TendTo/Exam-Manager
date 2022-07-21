@@ -1,6 +1,6 @@
 import { HTMLInputTypeAttribute } from "react";
 
-export type InputType = "string" | "uint256" | "uint8" | "address";
+export type InputType = "string" | "uint256" | "uint8" | "address" | "array" | "object";
 type FrontendParsing = {
   type: HTMLInputTypeAttribute;
   pattern?: { message: string; value: RegExp };
