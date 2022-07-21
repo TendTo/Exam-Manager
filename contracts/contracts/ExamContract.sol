@@ -78,6 +78,7 @@ contract ExamContract is IExamContract {
 
     function removeAuthorizedProf(uint256 subjectId, address profAddr) external onlyAdmin {
         subjects[subjectId].authorizedProf[profAddr] = false;
+        emit AuthorizedProfRemoved(subjectId, profAddr);
     }
 
     //endregion
