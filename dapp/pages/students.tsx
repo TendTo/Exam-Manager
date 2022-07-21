@@ -1,14 +1,18 @@
+import { useEthers } from "@usedapp/core";
 import { ContractFunction } from "components";
-import { useStudentFunctions } from "hooks";
+import { useStudentCalls, useStudentFunctions } from "hooks";
 
 export default function Students() {
+  const { library, account } = useEthers();
   const { acceptSubjectResult, rejectTestResult, resetSubject } = useStudentFunctions();
+  const { studentId, subjectAccepted, subjectPassed, subjectResetted, testFailed, testPassed } =
+    useStudentCalls(library, account);
 
   return (
     <div className="hero min-h-full bg-base-200">
       <div className="hero-content text-center">
         <div className="max-w-4xl">
-          <h1 className="text-5xl font-bold">Studente</h1>
+          <h1 className="text-5xl font-bold">{studentId}</h1>
           <p className="py-6">
             Piattaforma <b>ufficialissima</b> del dipartimento di Informatica di Catania per la
             gestione degli esami universitari
