@@ -2,9 +2,8 @@
   "name": "hardhat-project",
   "scripts": {
     "test": "hardhat test",
-    "precompile": "rm -rf ../dapp/types",
     "compile": "hardhat compile",
-    "postcompile": "cp -r typechain-types ../dapp/types",
+    "postcompile": "cpr typechain-types ../dapp/types -d",
     "coverage": "hardhat coverage",
     "deploy:ganache": "hardhat run --network ganache scripts/deployExam.ts",
     "deploy:multicall": "hardhat run --network ganache scripts/deployMulticall.ts",
@@ -22,5 +21,8 @@
     "test": "test"
   },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "cpr": "^3.0.1"
+  }
 }
