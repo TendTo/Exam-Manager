@@ -7,3 +7,4 @@ export { default as LogoMetamask } from "./logos/logoMetamask";
 export { default as LoginGuard } from "./loginGuard";
 export { default as ContractFunction } from "./contractFunction";
 export { default as SimpleField } from "./form/simpleField";
+export {default as PendingSubject } from "./pendingSubject";

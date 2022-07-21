@@ -1,12 +1,68 @@
 import { useEthers } from "@usedapp/core";
-import { ContractFunction } from "components";
+import { ContractFunction, PendingSubject } from "components";
 import { useStudentCalls, useStudentFunctions } from "hooks";
+import { UseLogsReturn } from "hooks/logs";
+import { useMemo } from "react";
+import { ExamContract } from "types";
+
+function getTestsStatus(
+  failed: UseLogsReturn<ExamContract, "TestFailed">["value"] = [],
+  passed: UseLogsReturn<ExamContract, "TestPassed">["value"] = []
+) {
+  const allTests = [
+    ...failed.map((test) => ({ ...test, passed: true })),
+    ...passed.map((test) => ({ ...test, passed: false })),
+  ];
+  const sortedTests = allTests.sort((a, b) => a.blockNumber - b.blockNumber);
+  return sortedTests.reduce((acc, test) => {
+    if (acc[test.data.subjectId] === undefined) acc[test.data.subjectId] = {};
+    acc[test.data.subjectId][test.data.testIdx] = {
+      mark: test.data.mark,
+      passed: test.passed,
+    };
+    return acc;
+  }, {} as Record<string, Record<string, { mark: number; passed: boolean }>>);
+}
+
+function getSubjectStatus(
+  accepted: UseLogsReturn<ExamContract, "SubjectAccepted">["value"] = [],
+  passed: UseLogsReturn<ExamContract, "SubjectPassed">["value"] = [],
+  resetted: UseLogsReturn<ExamContract, "SubjectResetted">["value"] = []
+) {
+  const allSubjects = [
+    ...accepted.map((test) => ({ ...test, passed: false })),
+    ...passed.map((test) => ({ ...test, passed: true })),
+    ...resetted.map((test) => ({ ...test, passed: false })),
+  ];
+  const sortedSubjects = allSubjects.sort((a, b) => a.blockNumber - b.blockNumber);
+
+  const subjectObject = sortedSubjects.reduce((acc, test) => {
+    acc[test.data.subjectId] = {
+      mark: test.data.mark,
+      passed: test.passed,
+    };
+    return acc;
+  }, {} as Record<number, { mark: number; passed: boolean }>);
+  return [
+    Object.entries(subjectObject).reduce((acc, [subjectId, tests]) => {
+      if (tests.passed) acc.push({ mark: tests.mark, subjectId } as any);
+      return acc;
+    }, [] as { mark: number; subjectId: number }[]),
+    accepted.map((test) => ({ mark: test.data.mark, subjectId: test.data.subjectId })),
+  ] as const;
+}
 
 export default function Students() {
   const { library, account } = useEthers();
   const { acceptSubjectResult, rejectTestResult, resetSubject } = useStudentFunctions();
   const { studentId, subjectAccepted, subjectPassed, subjectResetted, testFailed, testPassed } =
     useStudentCalls(library, account);
+
+  const tests = useMemo(() => getTestsStatus(testFailed, testPassed), [testFailed, testPassed]);
+  const [subPending, subAccepted] = useMemo(
+    () => getSubjectStatus(subjectAccepted, subjectPassed, subjectResetted),
+    [subjectAccepted, subjectPassed, subjectResetted]
+  );
 
   return (
     <div className="hero min-h-full bg-base-200">
@@ -21,122 +77,15 @@ export default function Students() {
             <table className="table w-full">
               <thead>
                 <tr>
-                  <th>Funzioni disponibili</th>
+                  <th>
+                    <div>Materie in Pending</div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <ContractFunction
-                      title="Rifiuta il voto di un esame"
-                      description="Rifiuta il voto di un esame. Potresti dover ripetere alcuni esami precedenti"
-                      fields={[
-                        {
-                          label: "Id della materia",
-                          name: "subjectId",
-                          type: "uint256",
-                        },
-                        {
-                          label: "Id dell'esame",
-                          name: "testId",
-                          type: "uint8",
-                        },
-                      ]}
-                      callback={console.log}
-                      // callback={rejectTestResult}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <ContractFunction
-                      title="Accetta il voto di una materia"
-                      description="Accetta il voto di una materia. Il voto verrà registrato nella tua carriera universitaria"
-                      fields={[
-                        {
-                          label: "Id della materia",
-                          name: "subjectId",
-                          type: "uint256",
-                        },
-                      ]}
-                      callback={console.log}
-                      // callback={acceptSubjectResult}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <ContractFunction
-                      title="Ripristina una materia"
-                      description="Ripristina una materia allo stato originale. Tutti i risultati attuali degli esami della materia verranno cancellati"
-                      fields={[
-                        {
-                          label: "Id della materia",
-                          name: "subjectId",
-                          type: "uint256",
-                        },
-                      ]}
-                      // callback={resetSubject}
-                      callback={console.log}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <ContractFunction
-                      title="Registra i voti di un esame"
-                      description="Registra i voti di un esame ad una lista di studenti"
-                      fields={[
-                        {
-                          label: "Risultati esami",
-                          name: "subjectId",
-                          type: "object",
-                          subFields: [
-                            {
-                              label: "Matricola",
-                              name: "studentId",
-                              type: "uint256",
-                            },
-                            {
-                              label: "Voto",
-                              name: "mark",
-                              type: "uint8",
-                            },
-                          ],
-                        },
-                      ]}
-                      callback={console.log}
-                    />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <ContractFunction
-                      title="Registra i voti di un esame"
-                      description="Registra i voti di un esame ad una lista di studenti"
-                      fields={[
-                        {
-                          label: "Risultati esami",
-                          name: "subjectId",
-                          type: "array",
-                          subFields: [
-                            {
-                              label: "Matricola",
-                              name: "studentId",
-                              type: "uint256",
-                            },
-                            {
-                              label: "Voto",
-                              name: "mark",
-                              type: "uint8",
-                            },
-                          ],
-                        },
-                      ]}
-                      callback={console.log}
-                    />
-                  </td>
-                </tr>
+                {subPending.map((subject) => (
+                  <PendingSubject {...{ ...subject, library }} />
+                ))}
               </tbody>
             </table>
           </div>
