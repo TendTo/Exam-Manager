@@ -3,6 +3,7 @@ import { HTMLInputTypeAttribute } from "react";
 export type InputType = "string" | "uint256" | "uint8" | "address" | "array" | "object";
 type FrontendParsing = {
   type: HTMLInputTypeAttribute;
+  placeholder?: string;
   pattern?: { message: string; value: RegExp };
   min?: { message: string; value: number };
   max?: { message: string; value: number };
@@ -25,11 +26,13 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
     case "address":
       return {
         type: "text",
+        placeholder: "0x0000000000000000000000000000000000000000",
         pattern: { message: "Deve essere un indirizzo ETH valido", value: /0x[0-9a-fA-F]{40}/ },
       };
     case "uint256":
       return {
         type: "number",
+        placeholder: "0",
         min: { value: 0, message: "Deve essere maggiore o uguale 0" },
         max: {
           value: Number.MAX_SAFE_INTEGER,
@@ -40,6 +43,7 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
     case "uint8":
       return {
         type: "number",
+        placeholder: "0",
         min: { value: 0, message: "Deve essere maggiore o uguale a 0" },
         max: {
           value: 255,
@@ -48,7 +52,7 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
         valueAsNumber: true,
       };
     case "string":
-      return { type: "text" };
+      return {placeholder: "ABC", type: "text" };
     default:
       return { type: "text" };
   }

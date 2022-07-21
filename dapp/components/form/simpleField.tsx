@@ -19,14 +19,15 @@ export type FieldProps = FieldProperties & {
 };
 
 export default function SimpleField({ label, name, register, type, errorMessage }: FieldProps) {
-  const { type: inputType, ...params } = getFrontendParsing(type);
+  const { type: inputType,placeholder, ...params } = getFrontendParsing(type);
   return (
     <div className="form-control">
       <label className="input-group input-group-vertical">
         <span>{label}</span>
         <input
           type={inputType}
-          className="input input-bordered"
+          placeholder={placeholder}
+          className="input input-bordered outline-none appearance-none placeholder-gray-500"
           {...register(name, {
             required: { message: "Il campo è richiesto", value: true },
             ...params,

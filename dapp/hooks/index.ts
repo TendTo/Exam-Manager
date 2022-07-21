@@ -23,3 +23,4 @@ export * from "./useAuthorizedProfAddedLogs";
 export * from "./useLogin";
 export * from "./useStudentFunctions";
 export * from "./useStudentCalls";
+export * from "./useAdminFunctions";
