@@ -38,7 +38,8 @@ export default function Students() {
                           type: "uint8",
                         },
                       ]}
-                      callback={rejectTestResult}
+                      callback={console.log}
+                      // callback={rejectTestResult}
                     />
                   </td>
                 </tr>
@@ -54,7 +55,8 @@ export default function Students() {
                           type: "uint256",
                         },
                       ]}
-                      callback={acceptSubjectResult}
+                      callback={console.log}
+                      // callback={acceptSubjectResult}
                     />
                   </td>
                 </tr>
@@ -70,7 +72,64 @@ export default function Students() {
                           type: "uint256",
                         },
                       ]}
-                      callback={resetSubject}
+                      // callback={resetSubject}
+                      callback={console.log}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <ContractFunction
+                      title="Registra i voti di un esame"
+                      description="Registra i voti di un esame ad una lista di studenti"
+                      fields={[
+                        {
+                          label: "Risultati esami",
+                          name: "subjectId",
+                          type: "object",
+                          subFields: [
+                            {
+                              label: "Matricola",
+                              name: "studentId",
+                              type: "uint256",
+                            },
+                            {
+                              label: "Voto",
+                              name: "mark",
+                              type: "uint8",
+                            },
+                          ],
+                        },
+                      ]}
+                      callback={console.log}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <ContractFunction
+                      title="Registra i voti di un esame"
+                      description="Registra i voti di un esame ad una lista di studenti"
+                      fields={[
+                        {
+                          label: "Risultati esami",
+                          name: "subjectId",
+                          type: "array",
+                          subFields: [
+                            {
+                              label: "Matricola",
+                              name: "studentId",
+                              type: "uint256",
+                            },
+                            {
+                              label: "Voto",
+                              name: "mark",
+                              type: "uint8",
+                            },
+                          ],
+                        },
+                      ]}
+                      callback={console.log}
                     />
                   </td>
                 </tr>
