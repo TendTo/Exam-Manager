@@ -2,6 +2,7 @@ import { ChainId, Config, DAppProvider, Ropsten } from "@usedapp/core";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { SubjectIdContextProvider } from "./subjectIdContext";
 
 const config: Config = {
   readOnlyUrls: {
@@ -16,9 +17,9 @@ type ContextProviderProps = {
 
 export function ContextProvider({ children }: ContextProviderProps) {
   return (
-      <DAppProvider config={config}>
-        {children}
-        <ToastContainer />
-      </DAppProvider>
+    <DAppProvider config={config}>
+      <SubjectIdContextProvider>{children}</SubjectIdContextProvider>
+      <ToastContainer />
+    </DAppProvider>
   );
 }
