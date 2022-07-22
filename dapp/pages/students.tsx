@@ -1,5 +1,5 @@
 import { useEthers } from "@usedapp/core";
-import { ContractFunction, PendingSubject } from "components";
+import { PendingSubject } from "components";
 import { useStudentCalls, useStudentFunctions } from "hooks";
 import { UseLogsReturn } from "hooks/logs";
 import { useMemo } from "react";
@@ -54,7 +54,7 @@ function getSubjectStatus(
 
 export default function Students() {
   const { library, account } = useEthers();
-  const { acceptSubjectResult, rejectTestResult, resetSubject } = useStudentFunctions();
+  const { acceptSubjectResult, rejectTestResult, resetSubject } = useStudentFunctions(library);
   const { studentId, subjectAccepted, subjectPassed, subjectResetted, testFailed, testPassed } =
     useStudentCalls(library, account);
 
