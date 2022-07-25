@@ -1,25 +1,33 @@
 import { UseFormRegister } from "react-hook-form";
 import { getFrontendParsing, InputType } from "utils/parsing";
 
-type SingleFieldProperties = {
+type BaseFieldProperties = {
   name: string;
   label: string;
+};
+type SingleFieldProperties = BaseFieldProperties & {
   type: Exclude<InputType, "array" | "object">;
 };
-export type ComposedFieldProperties = {
-  name: string;
-  label: string;
-  type: "array" | "object";
+export type ComposedFieldProperties = BaseFieldProperties & {
+  type: "object";
   subFields: SingleFieldProperties[];
 };
-export type FieldProperties = SingleFieldProperties | ComposedFieldProperties;
+export type ArrayFieldProperties = BaseFieldProperties & {
+  type: "array";
+  subFields: (ArrayFieldProperties | SingleFieldProperties)[];
+};
+
+export type FieldProperties =
+  | SingleFieldProperties
+  | ComposedFieldProperties
+  | ArrayFieldProperties;
 export type FieldProps = FieldProperties & {
   register: UseFormRegister<any>;
   errorMessage?: string;
 };
 
 export default function SimpleField({ label, name, register, type, errorMessage }: FieldProps) {
-  const { type: inputType,placeholder, ...params } = getFrontendParsing(type);
+  const { type: inputType, placeholder, ...params } = getFrontendParsing(type);
   return (
     <div className="form-control">
       <label className="input-group input-group-vertical">

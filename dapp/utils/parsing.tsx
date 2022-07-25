@@ -1,6 +1,14 @@
 import { HTMLInputTypeAttribute } from "react";
 
-export type InputType = "string" | "uint256" | "uint8" | "address" | "array" | "object";
+export type InputType =
+  | "string"
+  | "uint256"
+  | "uint8"
+  | "address"
+  | "array"
+  | "object"
+  | "arrayString";
+
 type FrontendParsing = {
   type: HTMLInputTypeAttribute;
   placeholder?: string;
@@ -8,6 +16,7 @@ type FrontendParsing = {
   min?: { message: string; value: number };
   max?: { message: string; value: number };
   valueAsNumber?: true;
+  setValueAs?: (value?: string) => any;
 };
 type BackendParsing<T extends InputType> = (
   input?: string
@@ -19,6 +28,8 @@ type BackendParsing<T extends InputType> = (
   ? number
   : T extends "address"
   ? string
+  : T extends "arrayString"
+  ? number[]
   : never;
 
 export function getFrontendParsing(type: InputType): FrontendParsing {
@@ -52,7 +63,20 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
         valueAsNumber: true,
       };
     case "string":
-      return {placeholder: "ABC", type: "text" };
+      return { placeholder: "ABC", type: "text" };
+    case "arrayString":
+      return {
+        placeholder: "[0, 1, 2]",
+        type: "text",
+        pattern: {
+          message: "Deve essere un array di interi valido",
+          value: /^\[((\s*\d+\s*,\s*)*\s*\d+\s*)?\]$/,
+        },
+        setValueAs: (input?: string) =>
+          typeof input === "string" && input?.match(/^\[((\s*\d+\s*,\s*)*\s*\d+\s*)?\]$/)
+            ? JSON.parse(input || "[]")
+            : input,
+      };
     default:
       return { type: "text" };
   }
@@ -68,6 +92,8 @@ export function getBackendParsing(type: InputType): BackendParsing<typeof type> 
       return (input?: string) => (input ? parseInt(input) : 0);
     case "string":
       return (input?: string) => (input ? input : "");
+    case "arrayString":
+      return (input?: string) => JSON.parse(input || "[]");
     default:
       return (input?: string) => (input ? input : "");
   }

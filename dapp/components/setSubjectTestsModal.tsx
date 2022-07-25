@@ -6,6 +6,15 @@ import { IExamContract } from "types";
 import ArrayField from "./form/arrayField";
 import { useEffect, useRef } from "react";
 
+type FormData = {
+  name: string;
+  expiresIn: number;
+  minMark: number;
+  testIdxRequired: { value: number }[][];
+  testIdxReset: number[];
+  testIdxResetOnTake: number[];
+};
+
 export default function SetSubjectTestsModal() {
   const { library } = useEthers();
   const { state: subjectId } = useSubjectIdContext();
@@ -16,11 +25,15 @@ export default function SetSubjectTestsModal() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<{ tests: IExamContract.TestStruct[] }>();
+  } = useForm<{ tests: IExamContract.TestStruct[] }>({
+    defaultValues: {
+      tests: [],
+    },
+  });
   const checkbox = useRef<HTMLInputElement>(null);
 
-  const onSubmit = handleSubmit((tests) => {
-    console.log(tests.tests);
+  const onSubmit = handleSubmit((data) => {
+    console.log(data.tests);
     reset({ tests: [] });
     checkbox.current?.click();
     // if (!subjectId) return;
@@ -34,8 +47,8 @@ export default function SetSubjectTestsModal() {
   return (
     <>
       <input ref={checkbox} type="checkbox" id="set-subject-modal" className="modal-toggle" />
-      <div className="modal">
-        <div className="modal-box relative">
+      <div className="modal min-w-full">
+        <div className="modal-box relative min-w-[70%]">
           <label
             htmlFor="set-subject-modal"
             className="btn btn-sm btn-circle absolute right-2 top-2"
@@ -55,6 +68,28 @@ export default function SetSubjectTestsModal() {
                   { label: "Nome test", name: "name", type: "string" },
                   { label: "Durata valutazione", name: "expiresIn", type: "uint256" },
                   { label: "Voto minimo per superare il test", name: "minMark", type: "uint8" },
+                  {
+                    label: "Test necessari per effettuare il test",
+                    name: "testIdxRequired",
+                    type: "array",
+                    subFields: [
+                      {
+                        name: "value",
+                        type: "arrayString",
+                        label: "Test necessari per effettuare il test",
+                      },
+                    ],
+                  },
+                  {
+                    label: "Test da resettare quando il test viene fallito/rifiutato",
+                    name: "testIdxReset",
+                    type: "arrayString",
+                  },
+                  {
+                    label: "Test da resettare se l'alunno si presenta a fare il test",
+                    name: "testIdxResetOnTake",
+                    type: "arrayString",
+                  },
                 ]}
                 labelCallback={(_, idx) => `Test [${idx}]`}
               />
