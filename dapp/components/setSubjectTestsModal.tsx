@@ -25,7 +25,7 @@ export default function SetSubjectTestsModal() {
     handleSubmit,
     formState: { errors },
     reset,
-  } = useForm<{ tests: IExamContract.TestStruct[] }>({
+  } = useForm<{ tests: any[] }>({
     defaultValues: {
       tests: [],
     },
@@ -36,8 +36,8 @@ export default function SetSubjectTestsModal() {
     console.log(data.tests);
     reset({ tests: [] });
     checkbox.current?.click();
-    // if (!subjectId) return;
-    // send(subjectId, tests);
+    if (!subjectId) return;
+    send(subjectId, data.tests);
   });
 
   useEffect(() => {
@@ -76,7 +76,7 @@ export default function SetSubjectTestsModal() {
                       {
                         name: "value",
                         type: "arrayString",
-                        label: "Test necessari per effettuare il test",
+                        label: "Lista di test",
                       },
                     ],
                   },

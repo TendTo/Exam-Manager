@@ -17,5 +17,7 @@ export function useGetSubjectTests(
           args: [subjectId],
         };
 
-  return useCall(call) ?? { value: undefined, error: undefined };
+  const { value, ...rest } = useCall(call) ?? { value: undefined, error: undefined };
+  const extractedValue = Array.isArray(value) && value.length === 1 ? value[0] : undefined;
+  return { value: extractedValue, ...rest };
 }
