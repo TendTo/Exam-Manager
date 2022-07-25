@@ -50,7 +50,6 @@ export default function ContractFunction({
                         control={control}
                         subFields={field.subFields}
                         key={`${title}-${field.name}`}
-                        label={field.label}
                         register={register}
                         name={field.name}
                         errorMessage={errors[field.name] as any}

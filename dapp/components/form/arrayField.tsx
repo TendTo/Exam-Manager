@@ -4,34 +4,36 @@ import { ContractFormData } from "../contractFunction";
 import LogoPlus from "components/logos/logoPlus";
 import LogoTrash from "components/logos/logoTrash";
 
-export type FieldProps = Omit<ComposedFieldProperties, "type"> & {
-  control: Control<ContractFormData<FieldProperties[]>, object>;
+export type ArrayFieldProps<T> = Omit<ComposedFieldProperties, "type" | "label"> & {
+  control: Control<T, object>;
   register: UseFormRegister<any>;
   errorMessage?: Record<string, FieldError>[];
+  labelCallback?: (subfieldName: string, idx: number) => string;
 };
 
-export default function ArrayField({
-  label,
+export default function ArrayField<T>({
   name,
   register,
   errorMessage,
   control,
   subFields,
-}: FieldProps) {
+  labelCallback,
+}: ArrayFieldProps<T>) {
   const { fields, append, remove } = useFieldArray({
     control,
     name: name as never,
   });
-  console.log(errorMessage);
+
   return (
     <div className="form-control">
       {fields.map((field, idx) => {
         return (
-          <div className="flex flex-row gap-2 mb-6" key={`${label}-${field.id}`}>
-            <div className="flex flex-col gap-2 grow" key={`${label}-${field.id}`}>
+          <div className="flex flex-row gap-2 mb-6" key={`${name}-${field.id}`}>
+            {labelCallback && labelCallback(name, idx)}
+            <div className="flex flex-col gap-2 grow" key={`${name}-${field.id}`}>
               {subFields.map((subField) => (
                 <SimpleField
-                  key={`${label}-${field.id}-${subField.name}`}
+                  key={`${name}-${field.id}-${subField.name}`}
                   label={subField.label}
                   type={subField.type}
                   register={register}
