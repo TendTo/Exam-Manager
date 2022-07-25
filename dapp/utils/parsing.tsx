@@ -17,7 +17,9 @@ type FrontendParsing = {
   max?: { message: string; value: number };
   valueAsNumber?: true;
   setValueAs?: (value?: string) => any;
+  required?: { message: "Il campo è richiesto"; value: true };
 };
+
 type BackendParsing<T extends InputType> = (
   input?: string
 ) => T extends "string"
@@ -39,6 +41,7 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
         type: "text",
         placeholder: "0x0000000000000000000000000000000000000000",
         pattern: { message: "Deve essere un indirizzo ETH valido", value: /0x[0-9a-fA-F]{40}/ },
+        required: { message: "Il campo è richiesto", value: true },
       };
     case "uint256":
       return {
@@ -50,6 +53,7 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
           message: "Deve essere minore o uguale a 9007199254740991 2^(53-1).",
         },
         valueAsNumber: true,
+        required: { message: "Il campo è richiesto", value: true },
       };
     case "uint8":
       return {
@@ -61,6 +65,7 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
           message: "Deve essere minore o uguale a 255",
         },
         valueAsNumber: true,
+        required: { message: "Il campo è richiesto", value: true },
       };
     case "string":
       return { placeholder: "ABC", type: "text" };
@@ -75,7 +80,7 @@ export function getFrontendParsing(type: InputType): FrontendParsing {
         setValueAs: (input?: string) =>
           typeof input === "string" && input?.match(/^\[((\s*\d+\s*,\s*)*\s*\d+\s*)?\]$/)
             ? JSON.parse(input || "[]")
-            : input,
+            : [],
       };
     default:
       return { type: "text" };

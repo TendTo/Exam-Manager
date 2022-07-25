@@ -37,7 +37,6 @@ export default function SimpleField({ label, name, register, type, errorMessage 
           placeholder={placeholder}
           className="input input-bordered outline-none appearance-none placeholder-gray-500"
           {...register(name, {
-            required: { message: "Il campo è richiesto", value: true },
             ...params,
           })}
         />
