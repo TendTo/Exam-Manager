@@ -8,7 +8,6 @@ type LoginGuardProps = {
 
 export default function LoginGuard({ children, router }: React.PropsWithChildren<LoginGuardProps>) {
   const { user } = useLogin();
-  console.log(user);
 
   useEffect(() => {
     switch (user) {

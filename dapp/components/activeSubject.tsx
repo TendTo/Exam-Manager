@@ -11,7 +11,6 @@ type PendingSubjectProps = {
 
 export default function ActiveSubject({ library, subjectId }: PendingSubjectProps) {
   const { value: subjectTests } = useGetSubjectTests(library, subjectId);
-  console.log(subjectTests);
 
   return (
     <tr>
