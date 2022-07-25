@@ -11,8 +11,8 @@ export default function SetSubjectTests({ library, subjectId }: PendingSubjectPr
   const { update } = useSubjectIdContext();
   return (
     <>
-      <label htmlFor="set-subject-modal" className="btn modal-button" onClick={() => update(subjectId)}>
-        open modal
+      <label htmlFor="set-subject-modal" className="btn btn-warning modal-button" onClick={() => update(subjectId)}>
+        Modifica tests
       </label>
     </>
   );
