@@ -77,6 +77,12 @@ interface IExamContract {
         uint256 indexed studentId,
         uint8 mark
     );
+    event TestAccepted(
+        uint256 indexed subjectId,
+        uint8 indexed testIdx,
+        uint256 indexed studentId,
+        uint8 mark
+    );
     event TestRejected(uint256 indexed subjectId, uint8 indexed testIdx, uint256 indexed studentId);
     event MissingTestRequirements(
         uint256 indexed subjectId,
@@ -85,7 +91,7 @@ interface IExamContract {
     );
     event TestResetted(uint256 indexed subjectId, uint8 indexed testIdx, uint256 indexed studentId);
 
-    event SubjectPassed(uint256 indexed subjectId, uint256 indexed studentId);
+    event SubjectPassed(uint256 indexed subjectId, uint256 indexed studentId, uint8 mark);
     event SubjectAccepted(uint256 indexed subjectId, uint256 indexed studentId, uint8 mark);
     event SubjectResetted(uint256 indexed subjectId, uint256 indexed studentId);
     event MissingSubjectRequrements(uint256 indexed subjectId, uint256 indexed studentId);

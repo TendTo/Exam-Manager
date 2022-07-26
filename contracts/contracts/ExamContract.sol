@@ -145,6 +145,7 @@ contract ExamContract is IExamContract {
                 }
                 if (depResult.testStatus == Status.Passed) {
                     depResult.testStatus = Status.Accepted;
+                    emit TestAccepted(subjectId, dep, studentId, depResult.mark);
                 }
             }
             if (valid) return true;
@@ -267,7 +268,7 @@ contract ExamContract is IExamContract {
             ];
             result.mark = subjectResults[i].mark;
             result.subjectStatus = Status.Passed;
-            emit SubjectPassed(subjectId, subjectResults[i].studentId);
+            emit SubjectPassed(subjectId, subjectResults[i].studentId, subjectResults[i].mark);
         }
     }
 
