@@ -1,5 +1,6 @@
 import { useEthers } from "@usedapp/core";
 import { PendingSubject } from "components";
+import AcceptedSubject from "components/acceptedSubject";
 import { useStudentCalls, useStudentFunctions } from "hooks";
 import { UseLogsReturn } from "hooks/logs";
 import { useMemo } from "react";
@@ -109,9 +110,8 @@ export default function Students() {
     );
   }, [tests, subPending, subAccepted]);
 
-  console.log(
-    Object.entries(tests).map(([key, value]) => `Materia: ${key} test: ${JSON.stringify(value)}`)
-  );
+  console.log(subjectPassed);
+  console.log(subPending);
   console.log(career);
 
   return (
@@ -131,13 +131,36 @@ export default function Students() {
               <thead>
                 <tr>
                   <th>
-                    <div>Materie in Pending</div>
+                    <div className="text-xl">Materie in Pending</div>
                   </th>
                 </tr>
               </thead>
               <tbody>
                 {Object.entries(career.pending).map(([subjectId, { tests, mark }]) => (
                   <PendingSubject
+                    key={subjectId}
+                    library={library}
+                    mark={mark}
+                    subjectId={subjectId}
+                    tests={tests}
+                  />
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="table w-full">
+              <thead>
+                <tr>
+                  <th>
+                    <div className="text-xl">Materie superate</div>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(career.accepted).map(([subjectId, { tests, mark }]) => (
+                  <AcceptedSubject
+                    key={subjectId}
                     library={library}
                     mark={mark}
                     subjectId={subjectId}

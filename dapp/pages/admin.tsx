@@ -89,7 +89,7 @@ export default function Admin() {
                           type: "uint8",
                         },
                         {
-                          label: "Lista di materie necessarie",
+                          label: "Lista di materie che hanno questa come propedeutica",
                           name: "subjectIdToUnlock",
                           type: "array",
                           subFields: [

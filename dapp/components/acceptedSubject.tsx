@@ -1,16 +1,15 @@
 import { useGetSubjectTests, useStudentFunctions, useSubjects } from "hooks";
 import { JsonRpcProvider } from "@ethersproject/providers";
 
-type PendingSubjectProps = {
+type AcceptedSubjectProps = {
   library: JsonRpcProvider | undefined;
   mark?: number;
   subjectId: string;
   tests?: Record<string, { mark: number; passed: boolean }>;
 };
 
-export default function PendingSubject({ library, mark, subjectId, tests }: PendingSubjectProps) {
+export default function AcceptedSubject({ library, mark, subjectId, tests }: AcceptedSubjectProps) {
   const { value: subjectInfo } = useSubjects(library, parseInt(subjectId));
-  const { acceptSubjectResult, resetSubject } = useStudentFunctions(library);
   const { value: testList } = useGetSubjectTests(library, parseInt(subjectId));
 
   if (!subjectInfo) return <></>;
@@ -22,22 +21,7 @@ export default function PendingSubject({ library, mark, subjectId, tests }: Pend
           <div className="collapse-title text-xl font-bold flex flex-row justify-between">
             <div>{subjectInfo.name}</div>
             <div>CFU: {subjectInfo.cfu}</div>
-            {mark && (
-              <>
-                <div>{mark}</div>
-                <div>
-                  <button
-                    className="btn btn-success mr-1"
-                    onClick={() => acceptSubjectResult(subjectId)}
-                  >
-                    ✔️
-                  </button>
-                  <button className="btn btn-error" onClick={() => resetSubject(subjectId)}>
-                    ❌
-                  </button>
-                </div>
-              </>
-            )}
+            {mark && <div>{mark}</div>}
           </div>
           <div className="collapse-content">
             {tests && (
@@ -46,7 +30,7 @@ export default function PendingSubject({ library, mark, subjectId, tests }: Pend
                   <tr>
                     <th>Test</th>
                     <th>Risultato</th>
-                    <th>Azioni</th>
+                    <th />
                   </tr>
                 </thead>
                 <tbody>
