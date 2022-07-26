@@ -5,13 +5,34 @@ import { UseLogsReturn } from "hooks/logs";
 import { useMemo } from "react";
 import { ExamContract } from "types";
 
+type StudentCareer = {
+  pending: SubjectResult;
+  accepted: SubjectResult;
+};
+
+type TestResult = Record<
+  string,
+  {
+    mark: number;
+    passed: boolean;
+  }
+>;
+type SubjectResult = Record<
+  string,
+  {
+    mark?: number;
+    passed?: boolean;
+    tests?: TestResult;
+  }
+>;
+
 function getTestsStatus(
   failed: UseLogsReturn<ExamContract, "TestFailed">["value"] = [],
   passed: UseLogsReturn<ExamContract, "TestPassed">["value"] = []
 ) {
   const allTests = [
-    ...failed.map((test) => ({ ...test, passed: true })),
-    ...passed.map((test) => ({ ...test, passed: false })),
+    ...failed.map((test) => ({ ...test, passed: false })),
+    ...passed.map((test) => ({ ...test, passed: true })),
   ];
   const sortedTests = allTests.sort((a, b) => a.blockNumber - b.blockNumber);
   return sortedTests.reduce((acc, test) => {
@@ -21,7 +42,7 @@ function getTestsStatus(
       passed: test.passed,
     };
     return acc;
-  }, {} as Record<string, Record<string, { mark: number; passed: boolean }>>);
+  }, {} as Record<string, TestResult>);
 }
 
 function getSubjectStatus(
@@ -42,14 +63,17 @@ function getSubjectStatus(
       passed: test.passed,
     };
     return acc;
-  }, {} as Record<number, { mark: number; passed: boolean }>);
-  return [
-    Object.entries(subjectObject).reduce((acc, [subjectId, tests]) => {
-      if (tests.passed) acc.push({ mark: tests.mark, subjectId } as any);
+  }, {} as SubjectResult);
+  return {
+    subPending: Object.entries(subjectObject).reduce((acc, [subjectId, subject]) => {
+      if (subject.passed) acc[subjectId] = { mark: subject.mark, passed: true };
       return acc;
-    }, [] as { mark: number; subjectId: number }[]),
-    accepted.map((test) => ({ mark: test.data.mark, subjectId: test.data.subjectId })),
-  ] as const;
+    }, {} as SubjectResult),
+    subAccepted: accepted.reduce((acc, subject) => {
+      acc[subject.data.subjectId] = { mark: subject.data.mark, passed: false };
+      return acc;
+    }, {} as SubjectResult),
+  };
 }
 
 export default function Students() {
@@ -59,16 +83,45 @@ export default function Students() {
     useStudentCalls(library, account);
 
   const tests = useMemo(() => getTestsStatus(testFailed, testPassed), [testFailed, testPassed]);
-  const [subPending, subAccepted] = useMemo(
+  const { subPending, subAccepted } = useMemo(
     () => getSubjectStatus(subjectAccepted, subjectPassed, subjectResetted),
     [subjectAccepted, subjectPassed, subjectResetted]
   );
+  const career = useMemo(() => {
+    return Object.entries(tests).reduce(
+      (acc, [subjectId, test]) => {
+        if (subAccepted[subjectId] !== undefined) {
+          acc.accepted[subjectId] = {
+            mark: subAccepted[subjectId]?.mark,
+            passed: subAccepted[subjectId]?.passed,
+            tests: test,
+          };
+        } else {
+          acc.pending[subjectId] = {
+            mark: subAccepted[subjectId]?.mark,
+            passed: subAccepted[subjectId]?.passed,
+            tests: test,
+          };
+        }
+        return acc;
+      },
+      { pending: {}, accepted: {} } as StudentCareer
+    );
+  }, [tests, subPending, subAccepted]);
+
+  console.log(
+    Object.entries(tests).map(([key, value]) => `Materia: ${key} test: ${JSON.stringify(value)}`)
+  );
+  console.log(career);
 
   return (
     <div className="hero min-h-full bg-base-200">
       <div className="hero-content text-center">
         <div className="max-w-4xl">
-          <h1 className="text-5xl font-bold">{studentId}</h1>
+          <h1 className="text-5xl font-bold">Studente {studentId}</h1>
+          <p className="text-xl" title={account}>
+            {account}
+          </p>
           <p className="py-6">
             Piattaforma <b>ufficialissima</b> del dipartimento di Informatica di Catania per la
             gestione degli esami universitari
@@ -83,8 +136,13 @@ export default function Students() {
                 </tr>
               </thead>
               <tbody>
-                {subPending.map((subject) => (
-                  <PendingSubject {...{ ...subject, library }} />
+                {Object.entries(career.pending).map(([subjectId, { tests, mark }]) => (
+                  <PendingSubject
+                    library={library}
+                    mark={mark}
+                    subjectId={subjectId}
+                    tests={tests}
+                  />
                 ))}
               </tbody>
             </table>
