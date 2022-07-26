@@ -1,18 +1,18 @@
-import { useGetSubjectTests, useRegisterTestResults } from "hooks";
+import { useGetSubjectTests, useRegisterTestResults, useRegisterSubjectResults } from "hooks";
 import { JsonRpcProvider } from "@ethersproject/providers";
 import SetSubjectTests from "./setSubjectTests";
-import { IExamContract } from "types";
 import RegisterTestVotes from "./registerTestVotes";
+import RegisterSubjectVotes from "./registerSubjectVotes";
 
 type PendingSubjectProps = {
   library: JsonRpcProvider | undefined;
   subjectId: number;
-  setSubjectTests: (subjectId: number, tests: IExamContract.TestStruct[]) => Promise<any>;
 };
 
 export default function ActiveSubject({ library, subjectId }: PendingSubjectProps) {
   const { value: subjectTests } = useGetSubjectTests(library, subjectId);
-  const { send } = useRegisterTestResults(library);
+  const { send: sendTest } = useRegisterTestResults(library);
+  const { send: sendSubject } = useRegisterSubjectResults(library);
 
   return (
     <tr>
@@ -32,11 +32,13 @@ export default function ActiveSubject({ library, subjectId }: PendingSubjectProp
                     <RegisterTestVotes
                       testName={test.name}
                       minMark={test.minMark}
-                      callback={(results) => send(subjectId, idx, results)}
+                      callback={(results) => sendTest(subjectId, idx, results)}
                     />
                   ))}
               </div>
             </div>
+            <div className="divider" />
+            <RegisterSubjectVotes callback={(results) => sendSubject(subjectId, results)} />
           </div>
         </div>
       </td>

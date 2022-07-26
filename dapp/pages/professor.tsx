@@ -46,8 +46,8 @@ export default function Professor() {
   return (
     <div className="hero min-h-full bg-base-200">
       <div className="hero-content text-center">
-        <div className="max-w-md">
-          <h1 className="text-5xl font-bold">Professor</h1>
+        <div className="max-w-4xl">
+          <h1 className="text-5xl font-bold">Professore</h1>
           <p className="text-xl" title={account}>
             {account}
           </p>
@@ -66,12 +66,7 @@ export default function Professor() {
               </thead>
               <tbody>
                 {active.map((subjectId) => (
-                  <ActiveSubject
-                    key={subjectId}
-                    subjectId={subjectId}
-                    library={library}
-                    setSubjectTests={setSubjectTests}
-                  />
+                  <ActiveSubject key={subjectId} subjectId={subjectId} library={library} />
                 ))}
               </tbody>
             </table>

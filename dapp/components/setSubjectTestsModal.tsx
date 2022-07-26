@@ -2,7 +2,6 @@ import { useEthers } from "@usedapp/core";
 import { useSubjectIdContext } from "context";
 import { useSetSubjectTests } from "hooks";
 import { useForm } from "react-hook-form";
-import { IExamContract } from "types";
 import ArrayField from "./form/arrayField";
 import { useEffect, useRef } from "react";
 
@@ -48,7 +47,7 @@ export default function SetSubjectTestsModal() {
     <>
       <input ref={checkbox} type="checkbox" id="set-subject-modal" className="modal-toggle" />
       <div className="modal min-w-full">
-        <div className="modal-box relative min-w-[70%]">
+        <div className="modal-box relative min-w-[50%]">
           <label
             htmlFor="set-subject-modal"
             className="btn btn-sm btn-circle absolute right-2 top-2"
