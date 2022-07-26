@@ -15,7 +15,7 @@ export function useTestPassedLogs(
       provider && {
         contract: ExamContract__factory.connect(config.examContractAddress, provider),
         event: "TestPassed",
-        args: [studentId, testIdx, subjectId],
+        args: [subjectId, testIdx, studentId],
       }
     ) ?? ({ value: undefined, error: undefined } as any)
   );

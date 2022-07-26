@@ -15,7 +15,7 @@ export function useTestFailedLogs(
       provider && {
         contract: ExamContract__factory.connect(config.examContractAddress, provider),
         event: "TestFailed",
-        args: [studentId, testIdx, subjectId],
+        args: [subjectId, testIdx, studentId],
       }
     ) ?? ({ value: undefined, error: undefined } as any)
   );
