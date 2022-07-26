@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 
 function switchTheme() {
-  const theme = localStorage.getItem("theme")!;
+  const theme = localStorage.getItem("theme");
   const newTheme = theme === "dark" ? "light" : "dark";
   localStorage.setItem("theme", newTheme);
   const html = document.getElementsByTagName("html").item(0);
@@ -26,9 +26,5 @@ export default function ThemeSwitcher() {
     if (html) html.dataset.theme = newTheme;
   }, []);
 
-  return (
-    <button onClick={switchTheme}>
-      Switch Theme
-    </button>
-  );
+  return <button onClick={switchTheme}>Switch Theme</button>;
 }

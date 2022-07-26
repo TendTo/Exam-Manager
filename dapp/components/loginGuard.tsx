@@ -1,5 +1,5 @@
 import { useLogin } from "hooks";
-import { NextRouter, useRouter } from "next/router";
+import { NextRouter } from "next/router";
 import { useEffect } from "react";
 
 type LoginGuardProps = {

@@ -2,7 +2,7 @@ export default function LogoMetamask() {
   return (
     <svg
       width="20px"
-      height= "20px"
+      height="20px"
       viewBox="0 0 256 240"
       version="1.1"
       preserveAspectRatio="xMidYMid"

@@ -5,15 +5,6 @@ import { useForm } from "react-hook-form";
 import ArrayField from "./form/arrayField";
 import { useEffect, useRef } from "react";
 
-type FormData = {
-  name: string;
-  expiresIn: number;
-  minMark: number;
-  testIdxRequired: { value: number }[][];
-  testIdxReset: number[];
-  testIdxResetOnTake: number[];
-};
-
 export default function SetSubjectTestsModal() {
   const { library } = useEthers();
   const { state: subjectId } = useSubjectIdContext();

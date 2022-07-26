@@ -30,6 +30,7 @@ export default function ActiveSubject({ library, subjectId }: PendingSubjectProp
                 {subjectTests &&
                   subjectTests.map((test, idx) => (
                     <RegisterTestVotes
+                      key={idx}
                       testName={test.name}
                       minMark={test.minMark}
                       callback={(results) => sendTest(subjectId, idx, results)}

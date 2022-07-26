@@ -22,10 +22,16 @@ export default function Header() {
         </div>
         <a className="btn btn-ghost normal-case text-xl">Exam Manager</a>
       </div>
-      <div className="navbar-center hidden lg:flex">
-      </div>
+      <div className="navbar-center hidden lg:flex" />
       <div className="navbar-end">
-        <a className="btn btn-primary" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">Get free CFU</a>
+        <a
+          className="btn btn-primary"
+          href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Get free CFU
+        </a>
       </div>
     </header>
   );
