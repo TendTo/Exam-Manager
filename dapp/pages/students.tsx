@@ -11,11 +11,12 @@ type StudentCareer = {
   accepted: SubjectResult;
 };
 
-type TestResult = Record<
+export type TestResult = Record<
   string,
   {
     mark: number;
     passed: boolean;
+    canRefuse: boolean;
   }
 >;
 type SubjectResult = Record<
@@ -29,11 +30,13 @@ type SubjectResult = Record<
 
 function getTestsStatus(
   failed: UseLogsReturn<ExamContract, "TestFailed">["value"] = [],
-  passed: UseLogsReturn<ExamContract, "TestPassed">["value"] = []
+  passed: UseLogsReturn<ExamContract, "TestPassed">["value"] = [],
+  accepted: UseLogsReturn<ExamContract, "TestAccepted">["value"] = []
 ) {
   const allTests = [
-    ...failed.map((test) => ({ ...test, passed: false })),
-    ...passed.map((test) => ({ ...test, passed: true })),
+    ...failed.map((test) => ({ ...test, passed: false, canRefuse: false })),
+    ...passed.map((test) => ({ ...test, passed: true, canRefuse: true })),
+    ...accepted.map((test) => ({ ...test, passed: true, canRefuse: false })),
   ];
   const sortedTests = allTests.sort((a, b) => a.blockNumber - b.blockNumber);
   return sortedTests.reduce((acc, test) => {
@@ -41,6 +44,7 @@ function getTestsStatus(
     acc[test.data.subjectId][test.data.testIdx] = {
       mark: test.data.mark,
       passed: test.passed,
+      canRefuse: test.canRefuse,
     };
     return acc;
   }, {} as Record<string, TestResult>);
@@ -79,11 +83,20 @@ function getSubjectStatus(
 
 export default function Students() {
   const { library, account } = useEthers();
-  const { acceptSubjectResult, rejectTestResult, resetSubject } = useStudentFunctions(library);
-  const { studentId, subjectAccepted, subjectPassed, subjectResetted, testFailed, testPassed } =
-    useStudentCalls(library, account);
+  const {
+    studentId,
+    subjectAccepted,
+    subjectPassed,
+    subjectResetted,
+    testFailed,
+    testPassed,
+    testAccepted,
+  } = useStudentCalls(library, account);
 
-  const tests = useMemo(() => getTestsStatus(testFailed, testPassed), [testFailed, testPassed]);
+  const tests = useMemo(
+    () => getTestsStatus(testFailed, testPassed, testAccepted),
+    [testFailed, testPassed]
+  );
   const { subPending, subAccepted } = useMemo(
     () => getSubjectStatus(subjectAccepted, subjectPassed, subjectResetted),
     [subjectAccepted, subjectPassed, subjectResetted]
@@ -109,10 +122,6 @@ export default function Students() {
       { pending: {}, accepted: {} } as StudentCareer
     );
   }, [tests, subPending, subAccepted]);
-
-  console.log(subjectPassed);
-  console.log(subPending);
-  console.log(career);
 
   return (
     <div className="hero min-h-full bg-base-200">

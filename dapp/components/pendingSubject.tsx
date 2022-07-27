@@ -1,16 +1,17 @@
 import { useGetSubjectTests, useStudentFunctions, useSubjects } from "hooks";
 import { JsonRpcProvider } from "@ethersproject/providers";
+import { TestResult } from "pages/students";
 
 type PendingSubjectProps = {
   library: JsonRpcProvider | undefined;
   mark?: number;
   subjectId: string;
-  tests?: Record<string, { mark: number; passed: boolean }>;
+  tests?: TestResult;
 };
 
 export default function PendingSubject({ library, mark, subjectId, tests }: PendingSubjectProps) {
   const { value: subjectInfo } = useSubjects(library, parseInt(subjectId));
-  const { acceptSubjectResult, resetSubject } = useStudentFunctions(library);
+  const { acceptSubjectResult, resetSubject, rejectTestResult } = useStudentFunctions(library);
   const { value: testList } = useGetSubjectTests(library, parseInt(subjectId));
 
   if (!subjectInfo) return <></>;
@@ -56,7 +57,16 @@ export default function PendingSubject({ library, mark, subjectId, tests }: Pend
                       <td className={test.passed ? "text-green-500" : "text-red-500"}>
                         {test.mark}
                       </td>
-                      <td />
+                      <td>
+                        {test.canRefuse ? (
+                          <button
+                            className="btn btn-error"
+                            onClick={() => rejectTestResult(subjectId, testId)}
+                          >
+                            ❌
+                          </button>
+                        ) : undefined}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

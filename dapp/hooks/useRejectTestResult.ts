@@ -6,6 +6,6 @@ import config from "config/contracts.json";
 export function useRejectTestResult(provider: JsonRpcProvider | undefined) {
   return useContractFunction(
     provider && ExamContract__factory.connect(config.examContractAddress, provider),
-    "registerTestResults"
+    "rejectTestResult"
   );
 }
