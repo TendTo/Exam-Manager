@@ -24,6 +24,7 @@ jobs:
       - name: Build
         run: |
           npm i
+          npm run compile
           npm run export
 
       - name: Deploy
