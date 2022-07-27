@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import LogoTheme from "./logos/logoTheme";
 
 function switchTheme() {
   const theme = localStorage.getItem("theme");
@@ -26,5 +27,5 @@ export default function ThemeSwitcher() {
     if (html) html.dataset.theme = newTheme;
   }, []);
 
-  return <button onClick={switchTheme}>Switch Theme</button>;
+  return <button onClick={switchTheme}><LogoTheme/></button>;
 }
