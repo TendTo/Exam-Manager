@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "preexport": "npm run build",
+    "export": "next export"
   },
   "dependencies": {
     "@usedapp/core": "^1.0.15",
