@@ -4,14 +4,14 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const INFURA_KEY = process.env.INFURA_KEY ?? "INFURA API KEY";
+const RPC_URL = process.env.RPC_URL ?? "RPC url";
 const ROPSTEN_SK = process.env.ROPSTEN_SK ?? "";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.9",
   networks: {
     ropsten: {
-      url: `https://ropsten.infura.io/v3/${INFURA_KEY}`,
+      url: RPC_URL,
       accounts: ROPSTEN_SK ? [ROPSTEN_SK] : [],
     },
     ganache: {
