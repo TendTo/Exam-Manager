@@ -23,7 +23,6 @@ export default function SetSubjectTestsModal() {
   const checkbox = useRef<HTMLInputElement>(null);
 
   const onSubmit = handleSubmit((data) => {
-    console.log(data.tests);
     reset({ tests: [] });
     checkbox.current?.click();
     if (!subjectId) return;

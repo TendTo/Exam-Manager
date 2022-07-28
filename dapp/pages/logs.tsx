@@ -1,18 +1,8 @@
 import { useLogs } from "hooks";
 
-function difference(obj1: object) {
-  const keys: string[] = [];
-  Object.keys(obj1).forEach((key) => {
-    if (isNaN(parseInt(key))) {
-      keys.push(key);
-    }
-  });
-  return keys;
-}
-
 export default function Logs() {
   const { value } = useLogs();
-  console.log(value);
+
   return (
     <div className="hero min-h-full bg-base-200">
       <div className="hero-content text-center">
@@ -41,18 +31,18 @@ export default function Logs() {
               </thead>
               <tbody>
                 {value &&
-                  value.map(({ event, args }) => {
-                    const properties = difference(args);
+                  value.map(({ event, args }, idx) => {
+                    const properties = Object.keys(args).filter((key) => isNaN(parseInt(key)));
                     return (
-                      <tr>
+                      <tr key={`${event}-${idx}`}>
                         <td>{event}</td>
                         {properties.map((key) => (
-                          <td>
+                          <td key={`${event}-${idx}-${key}-empty`}>
                             <b>{`${key}:`}</b> {`${args[key]}`}
                           </td>
                         ))}
-                        {Array.from(Array(4 - properties.length)).map(() => (
-                          <td />
+                        {Array.from(Array(4 - properties.length)).map((_, i) => (
+                          <td key={`${event}-${idx}-${i}-empty`} />
                         ))}
                       </tr>
                     );
