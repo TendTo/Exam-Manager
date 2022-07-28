@@ -3,7 +3,7 @@ import { ethers } from "hardhat";
 import { ExamContract__factory, ExamContract } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { addStudents, addSubject, parseTests as parseGetSubjectTests } from "./utils";
-import { Errors, prog1, prog1Tests, prog2, Status } from "./constants";
+import { calculus1, calculusTests, Errors, prog1, prog1Tests, prog2, Status } from "./constants";
 
 describe("ExamContract", function () {
   let contractFactory: ExamContract__factory;
@@ -67,9 +67,10 @@ describe("ExamContract", function () {
       await contract.addStudent(stud1, 1);
       expect(await contract.studentIds(stud1)).to.equal(1);
 
-      await expect(contract.addStudent(stud1, 2))
-        .to.be.revertedWithCustomError(contract, Errors.AddressAlreadyInUseError)
-        .withArgs(stud1);
+      await expect(contract.addStudent(stud1, 2)).to.be.revertedWithCustomError(
+        contract,
+        Errors.AddressAlreadyInUseError
+      );
     });
 
     it("Should set the admin", async function () {
@@ -128,10 +129,10 @@ describe("ExamContract", function () {
     });
 
     it("Should revert with 'UnauthorizedProfessorError'", async function () {
-      await expect(contract.registerTestResults(prog1.id, 0, []))
-        .to.be.revertedWithCustomError(contract, Errors.UnauthorizedProfessorError)
-        .withArgs(prog1.id, admin);
-        
+      await expect(contract.registerTestResults(prog1.id, 0, [])).to.be.revertedWithCustomError(
+        contract,
+        Errors.UnauthorizedProfessorError
+      );
     });
 
     it("Should revert with 'TestDoesNotExistsError'", async function () {
@@ -313,8 +314,10 @@ describe("ExamContract", function () {
 
     it("Should revert with 'TestDoesNotExistsError'", async function () {
       const testIdx = 10;
-      await expect(stud1Contract.rejectTestResult(prog1.id, testIdx))
-        .to.be.revertedWithCustomError(contract, Errors.TestDoesNotExistsError)
+      await expect(stud1Contract.rejectTestResult(prog1.id, testIdx)).to.be.revertedWithCustomError(
+        contract,
+        Errors.TestDoesNotExistsError
+      );
     });
 
     it("Should revert with 'TestAlreadyAcceptedError'", async function () {
@@ -324,9 +327,30 @@ describe("ExamContract", function () {
       const testResults = [{ mark: 18, studentId: 1 }];
       await profContract.registerTestResults(prog1.id, testIdx1, testResults);
       await profContract.registerTestResults(prog1.id, testIdx2, testResults);
-      await expect(stud1Contract.rejectTestResult(prog1.id, testIdx2))
-        .to.be.revertedWithCustomError(contract, Errors.TestAlreadyAcceptedError)
-        .withArgs(prog1.id, testIdx2, 1);
+      await expect(
+        stud1Contract.rejectTestResult(prog1.id, testIdx1)
+      ).to.be.revertedWithCustomError(contract, Errors.TestAlreadyAcceptedError);
+    });
+
+    it("Should reset other test results on take", async function () {
+      const testIdx1 = 0,
+        testIdx2 = 2;
+      const testResults1 = [{ mark: 18, studentId: 1 }];
+
+      await addSubject(contract, calculus1);
+      await contract.addAuthorizedProf(calculus1.id, prof);
+      await profContract.setSubjectTests(calculus1.id, calculusTests);
+      await profContract.registerTestResults(calculus1.id, testIdx1, testResults1);
+      expect(await stud1Contract.getTestMark(calculus1.id, testIdx1, 1)).to.have.ordered.members([
+        testResults1[0].mark,
+        Status.Passed,
+      ]);
+
+      await profContract.registerTestResults(calculus1.id, testIdx2, testResults1);
+      expect(await stud1Contract.getTestMark(calculus1.id, testIdx1, 1)).to.have.ordered.members([
+        testResults1[0].mark,
+        Status.NoVote,
+      ]);
     });
 
     it("Should reject a test result", async function () {
@@ -347,18 +371,20 @@ describe("ExamContract", function () {
     });
 
     it("Should raise 'SubjectNotAcceptableError'", async function () {
-      await expect(stud1Contract.acceptSubjectResult(prog1.id))
-        .to.be.revertedWithCustomError(contract, Errors.SubjectNotAcceptableError)
-        .withArgs(prog1.id, 1);
+      await expect(stud1Contract.acceptSubjectResult(prog1.id)).to.be.revertedWithCustomError(
+        contract,
+        Errors.SubjectNotAcceptableError
+      );
     });
 
     it("Should raise 'SubjectAlreadyAcceptedError'", async function () {
       const subjectResults = [{ mark: 24, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.acceptSubjectResult(prog1.id);
-      await expect(stud1Contract.acceptSubjectResult(prog1.id))
-        .to.be.revertedWithCustomError(contract, Errors.SubjectAlreadyAcceptedError)
-        .withArgs(prog1.id, 1);
+      await expect(stud1Contract.acceptSubjectResult(prog1.id)).to.be.revertedWithCustomError(
+        contract,
+        Errors.SubjectAlreadyAcceptedError
+      );
     });
 
     it("Should accept a subject result", async function () {
@@ -372,18 +398,20 @@ describe("ExamContract", function () {
     });
 
     it("Should raise 'SubjectNotAcceptableError'", async function () {
-      await expect(stud1Contract.resetSubject(prog1.id))
-        .to.be.revertedWithCustomError(contract, Errors.SubjectNotAcceptableError)
-        .withArgs(prog1.id, 1);
+      await expect(stud1Contract.acceptSubjectResult(prog1.id)).to.be.revertedWithCustomError(
+        contract,
+        Errors.SubjectNotAcceptableError
+      );
     });
 
     it("Should raise 'SubjectAlreadyAcceptedError'", async function () {
       const subjectResults = [{ mark: 24, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.acceptSubjectResult(prog1.id);
-      await expect(stud1Contract.resetSubject(prog1.id))
-        .to.be.revertedWithCustomError(contract, Errors.SubjectAlreadyAcceptedError)
-        .withArgs(prog1.id, 1);
+      await expect(stud1Contract.resetSubject(prog1.id)).to.be.revertedWithCustomError(
+        contract,
+        Errors.SubjectAlreadyAcceptedError
+      );
     });
 
     it("Should reject a subject and reset it", async function () {
