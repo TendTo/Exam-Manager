@@ -20,6 +20,7 @@ jobs:
           working_directory: docs
           root_file: index.tex
           post_compile: mv index.pdf Relazione_ISD.pdf
+          latexmk_shell_escape: true
 
       - uses: actions/upload-artifact@v2
         with:
