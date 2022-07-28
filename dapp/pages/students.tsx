@@ -1,7 +1,7 @@
 import { useEthers } from "@usedapp/core";
 import { PendingSubject } from "components";
 import AcceptedSubject from "components/acceptedSubject";
-import { useStudentCalls, useStudentFunctions } from "hooks";
+import { useStudentCalls } from "hooks";
 import { UseLogsReturn } from "hooks/logs";
 import { useMemo } from "react";
 import { ExamContract } from "types";
@@ -101,6 +101,7 @@ export default function Students() {
     () => getSubjectStatus(subjectAccepted, subjectPassed, subjectResetted),
     [subjectAccepted, subjectPassed, subjectResetted]
   );
+
   const career = useMemo(() => {
     return Object.entries(tests).reduce(
       (acc, [subjectId, test]) => {
@@ -112,8 +113,8 @@ export default function Students() {
           };
         } else {
           acc.pending[subjectId] = {
-            mark: subAccepted[subjectId]?.mark,
-            passed: subAccepted[subjectId]?.passed,
+            mark: subPending[subjectId]?.mark,
+            passed: subPending[subjectId]?.passed,
             tests: test,
           };
         }

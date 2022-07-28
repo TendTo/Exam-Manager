@@ -10,6 +10,7 @@ export default function LoginGuard({ children, router }: React.PropsWithChildren
   const { user } = useLogin();
 
   useEffect(() => {
+    if (router.pathname === "/logs") return;
     switch (user) {
       case "notLogged":
         router.push("/");

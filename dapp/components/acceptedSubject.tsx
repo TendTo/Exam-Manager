@@ -21,7 +21,7 @@ export default function AcceptedSubject({ library, mark, subjectId, tests }: Acc
           <div className="collapse-title text-xl font-bold flex flex-row justify-between">
             <div>{subjectInfo.name}</div>
             <div>CFU: {subjectInfo.cfu}</div>
-            {mark && <div>{mark}</div>}
+            {mark && <div>Voto: {mark}</div>}
           </div>
           <div className="collapse-content">
             {tests && (

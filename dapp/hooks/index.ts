@@ -28,3 +28,4 @@ export * from "./useAdminFunctions";
 export * from "./useProfessorFunctions";
 export * from "./useProfessorCalls";
 export * from "./useTestAcceptedLog";
+export * from "./useLogs";
