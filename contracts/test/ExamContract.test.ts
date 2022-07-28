@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { ExamContract__factory, ExamContract, IExamContract } from "../typechain-types";
+import { ExamContract__factory, ExamContract } from "../typechain-types";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { addStudents, addSubject, parseTests as parseGetSubjectTests } from "./utils";
 import { Errors, prog1, prog1Tests, prog2, Status } from "./constants";
@@ -67,7 +67,7 @@ describe("ExamContract", function () {
       await contract.addStudent(stud1, 1);
       expect(await contract.studentIds(stud1)).to.equal(1);
 
-      expect(contract.addStudent(stud1, 2))
+      await expect(contract.addStudent(stud1, 2))
         .to.be.revertedWithCustomError(contract, Errors.AddressAlreadyInUseError)
         .withArgs(stud1);
     });
@@ -128,16 +128,17 @@ describe("ExamContract", function () {
     });
 
     it("Should revert with 'UnauthorizedProfessorError'", async function () {
-      expect(contract.registerTestResults(prog1.id, 0, []))
+      await expect(contract.registerTestResults(prog1.id, 0, []))
         .to.be.revertedWithCustomError(contract, Errors.UnauthorizedProfessorError)
         .withArgs(prog1.id, admin);
+        
     });
 
     it("Should revert with 'TestDoesNotExistsError'", async function () {
-      const testIdx = 0;
-      expect(profContract.registerTestResults(prog1.id, testIdx, []))
-        .to.be.revertedWithCustomError(contract, Errors.TestDoesNotExistsError)
-        .withArgs(prog1.id, testIdx);
+      const testIdx = 10;
+      await expect(
+        profContract.registerTestResults(prog1.id, testIdx, [])
+      ).to.be.revertedWithCustomError(contract, Errors.TestDoesNotExistsError);
     });
 
     it("Should set the tests of a subject", async function () {
@@ -312,9 +313,8 @@ describe("ExamContract", function () {
 
     it("Should revert with 'TestDoesNotExistsError'", async function () {
       const testIdx = 10;
-      expect(stud1Contract.rejectTestResult(prog1.id, testIdx))
+      await expect(stud1Contract.rejectTestResult(prog1.id, testIdx))
         .to.be.revertedWithCustomError(contract, Errors.TestDoesNotExistsError)
-        .withArgs(prog1.id, testIdx);
     });
 
     it("Should revert with 'TestAlreadyAcceptedError'", async function () {
@@ -324,7 +324,7 @@ describe("ExamContract", function () {
       const testResults = [{ mark: 18, studentId: 1 }];
       await profContract.registerTestResults(prog1.id, testIdx1, testResults);
       await profContract.registerTestResults(prog1.id, testIdx2, testResults);
-      expect(stud1Contract.rejectTestResult(prog1.id, testIdx2))
+      await expect(stud1Contract.rejectTestResult(prog1.id, testIdx2))
         .to.be.revertedWithCustomError(contract, Errors.TestAlreadyAcceptedError)
         .withArgs(prog1.id, testIdx2, 1);
     });
@@ -347,7 +347,7 @@ describe("ExamContract", function () {
     });
 
     it("Should raise 'SubjectNotAcceptableError'", async function () {
-      expect(stud1Contract.acceptSubjectResult(prog1.id))
+      await expect(stud1Contract.acceptSubjectResult(prog1.id))
         .to.be.revertedWithCustomError(contract, Errors.SubjectNotAcceptableError)
         .withArgs(prog1.id, 1);
     });
@@ -356,7 +356,7 @@ describe("ExamContract", function () {
       const subjectResults = [{ mark: 24, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.acceptSubjectResult(prog1.id);
-      expect(stud1Contract.acceptSubjectResult(prog1.id))
+      await expect(stud1Contract.acceptSubjectResult(prog1.id))
         .to.be.revertedWithCustomError(contract, Errors.SubjectAlreadyAcceptedError)
         .withArgs(prog1.id, 1);
     });
@@ -372,7 +372,7 @@ describe("ExamContract", function () {
     });
 
     it("Should raise 'SubjectNotAcceptableError'", async function () {
-      expect(stud1Contract.resetSubject(prog1.id))
+      await expect(stud1Contract.resetSubject(prog1.id))
         .to.be.revertedWithCustomError(contract, Errors.SubjectNotAcceptableError)
         .withArgs(prog1.id, 1);
     });
@@ -381,7 +381,7 @@ describe("ExamContract", function () {
       const subjectResults = [{ mark: 24, studentId: 1 }];
       await profContract.registerSubjectResults(prog1.id, subjectResults);
       await stud1Contract.acceptSubjectResult(prog1.id);
-      expect(stud1Contract.resetSubject(prog1.id))
+      await expect(stud1Contract.resetSubject(prog1.id))
         .to.be.revertedWithCustomError(contract, Errors.SubjectAlreadyAcceptedError)
         .withArgs(prog1.id, 1);
     });
