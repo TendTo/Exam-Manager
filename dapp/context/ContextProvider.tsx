@@ -3,6 +3,7 @@ import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { SubjectIdContextProvider } from "./subjectIdContext";
+import { UserContextProvider } from "./userContext";
 
 const config: Config = {
   readOnlyUrls: {
@@ -18,7 +19,9 @@ type ContextProviderProps = {
 export function ContextProvider({ children }: ContextProviderProps) {
   return (
     <DAppProvider config={config}>
-      <SubjectIdContextProvider>{children}</SubjectIdContextProvider>
+      <SubjectIdContextProvider>
+        <UserContextProvider>{children}</UserContextProvider>
+      </SubjectIdContextProvider>
       <ToastContainer />
     </DAppProvider>
   );

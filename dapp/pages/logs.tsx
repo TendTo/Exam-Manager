@@ -15,17 +15,8 @@ export default function Logs() {
                   <th>
                     <div>Evento</div>
                   </th>
-                  <th>
-                    <div>Arg 0</div>
-                  </th>
-                  <th>
-                    <div>Arg 1</div>
-                  </th>
-                  <th>
-                    <div>Arg 2</div>
-                  </th>
-                  <th>
-                    <div>Arg 3</div>
+                  <th colSpan={4}>
+                    <div>Args</div>
                   </th>
                 </tr>
               </thead>
@@ -34,7 +25,7 @@ export default function Logs() {
                   value.map(({ event, args }, idx) => {
                     const properties = Object.keys(args).filter((key) => isNaN(parseInt(key)));
                     return (
-                      <tr key={`${event}-${idx}`}>
+                      <tr key={`${event}-${idx}`} className="hover">
                         <td>{event}</td>
                         {properties.map((key) => (
                           <td key={`${event}-${idx}-${key}-empty`}>

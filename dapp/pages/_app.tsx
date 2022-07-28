@@ -17,7 +17,7 @@ function MyApp({ Component, pageProps, router }: AppProps) {
     <ContextProvider>
       <LoginGuard router={router} />
       <Layout>
-        <Component {...pageProps} />
+        <Component {...{ ...pageProps, router }} />
       </Layout>
       <SetSubjectTestsModal />
     </ContextProvider>

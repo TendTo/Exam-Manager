@@ -3,6 +3,7 @@ import { useCallback, useState } from "react";
 import { ExamContract__factory } from "types";
 import { useAsync } from "./useAsync";
 import config from "config/contracts.json";
+import { useUserIdContext } from "context";
 
 export type UserContextType = "notLogged" | "admin" | "student" | "professor" | "unknown";
 
@@ -21,11 +22,11 @@ function getUser(
 
 export function useLogin() {
   const { account, chainId, library } = useEthers();
-  const [user, setUser] = useState<UserContextType>("notLogged");
+  const { state: user, update } = useUserIdContext();
 
   const contractCall = useCallback(async () => {
     if (!library || !account || !chainId) {
-      setUser("notLogged");
+      update("notLogged");
       return { admin: undefined, studentId: undefined, logs: [] };
     }
     const contract = ExamContract__factory.connect(config.examContractAddress, library);
@@ -35,7 +36,7 @@ export function useLogin() {
       contract.studentIds(account),
       contract.queryFilter(filter),
     ]);
-    setUser(getUser(account, admin, studentId.toNumber(), logs.length));
+    update(getUser(account, admin, studentId.toNumber(), logs.length));
     return { admin, studentId: studentId.toNumber(), logs };
   }, [account, chainId, library]);
   return { ...useAsync(contractCall, true, undefined), user };
