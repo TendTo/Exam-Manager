@@ -1,0 +1,52 @@
+\newglossaryentry{ethereum}
+{
+    name={Ethereum},
+    text={Ethereum},
+    description={
+            Ethereum è una piattaforma decentralizzata in grado di eseguire istruzioni sotto forma
+            di \gls{smart-contract}.
+            Per questo viene spesso paragonata ad una macchina virtuale distribuita. \\
+            Lo stato della macchina istante per istante è costruito a partire da quello
+            precedente seguendo il protocollo di consenso.
+            Ciò assicura che tutti gli utenti che seguono il protocollo ottengano lo stesso
+            risultato.
+        }
+}
+\newglossaryentry{smart-contract}
+{
+    name={Smart contract},
+    text={smart contract},
+    plural={smart contracts},
+    description={
+            Uno smart contract è un programma in grado di essere eseguito sulla blockchain \gls{ethereum}.
+            Come ogni altra cosa in ambito blockchain, una volta entrato a far parte dei quest'ultima
+            il codice non può più essere modificato. \\
+            Tuttavia gli smart contract hanno la possibilità di possedere uno stato interno che può essere
+            alterato con l'invocazione di uno dei suoi metodi da parte di un \gls{eoa}.
+        }
+}
+\newglossaryentry{eoa}
+{
+    name={Externally Owned Account (EOA)},
+    first={Externally Owned Account (EOA)},
+    text={EOA},
+    plural={EOAs},
+    description={
+            Sono account della blockchain \gls{ethereum} identificati da un indirizzo pubblico associato ad una chiave privata.
+            Chiunque sia in possesso della chiave privata è in grado di firmare transazioni a nome dell'account. \\
+            Per invocare un metodo di uno \gls{smart-contract}, è necessario che la transazione sia stata originata da un account EOA.
+        }
+}
+\newglossaryentry{dapp}
+{
+    name={Decentralized Application (DApp)},
+    first={Decentralized Application (DApp)},
+    text={DApp},
+    plural={DApps},
+    description={
+            Le DApp si differenziano dalle applicazioni tradizionali in quanto scelgono di evitare il modello client-server
+            per appoggiarsi su piattaforme blockchain e il loro network distribuito. \\
+            Nella maggior parte dei casi si tratta di applicazioni web.
+        }
+}
+

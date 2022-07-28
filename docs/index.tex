@@ -1,0 +1,43 @@
+\documentclass[12pt]{article}
+
+\input{setup}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Begin document
+%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% Metadata
+\title{Exam Manager}
+\author{Ernesto Casablanca, Simone Benedetto}
+\date{\today}
+\makeatletter
+
+% Title page
+\include{sections/title_page}
+
+% Index
+\tableofcontents
+\newpage
+
+% Abstract
+\input{sections/abstract}
+\pagebreak
+
+% Codice
+\input{sections/codice}
+\pagebreak
+
+% Conclusion
+\input{sections/conclusion}
+\pagebreak
+
+% Bibliography
+\printglossary
+\pagebreak
+\printbibliography
+\pagebreak
+
+\input{sections/appendix}
+
+\end{document}

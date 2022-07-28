@@ -1,0 +1,46 @@
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Imports
+%%%%%%%%%%%%%%%%%%%%%%%%
+\usepackage[utf8]{inputenc}
+\usepackage[italian]{babel}
+\usepackage{listings}
+\usepackage{minted}
+\usepackage{color}
+\usepackage{hyperref} % Extensive support for hypertext in LATEX (https://ctan.org/pkg/hyperref)
+\usepackage{csquotes}
+\usepackage[title]{appendix}
+\usepackage{graphicx} % Enhanced support for graphics (https://ctan.org/pkg/graphicx)
+\usepackage{framed} % Framed or shaded regions that can break across pages (https://ctan.org/pkg/framed)
+\usepackage[acronyms,style=altlist,nopostdot]{glossaries}
+\usepackage[font=small,labelfont=bf,tableposition=top,figurename=Fig.]{caption}
+\usepackage[style=numeric,useprefix,hyperref,backend=bibtex,sorting=none]{biblatex} % Sophisticated Bibliographies in LATEX (https://ctan.org/pkg/biblatex)
+\usepackage{subfig}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Settings
+%%%%%%%%%%%%%%%%%%%%%%%%
+\providecommand*{\listingautorefname}{Cod.}
+\renewcommand*{\listingscaption}{Codice}
+\renewcommand*{\figureautorefname}{Fig.}
+\renewcommand*{\chapterautorefname}{Cap.}
+\renewcommand*{\sectionautorefname}{Sez.}
+\renewcommand*{\subsectionautorefname}{Sub-sez.}
+\graphicspath{ {./img/} } % Base image path
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% References
+%%%%%%%%%%%%%%%%%%%%%%%%
+\addbibresource{resources.bib} %Import the bibliography file
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Glossary
+%%%%%%%%%%%%%%%%%%%%%%%%
+\makeglossaries
+\loadglsentries{glossary}
+
+%%%%%%%%%%%%%%%%%%%%%%%%
+% Minted
+%%%%%%%%%%%%%%%%%%%%%%%%
+\setminted[solidity]{linenos,tabsize=2,breaklines}
