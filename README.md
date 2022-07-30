@@ -9,7 +9,7 @@
 [![codecov](https://codecov.io/gh/TendTo/Exam-Manager/branch/master/graph/badge.svg?token=1QU7EY32HS)](https://codecov.io/gh/TendTo/Exam-Manager)
 
 
-[DApp](https://tendto.github.io/Exam-Manager) for managing student's accademic exams and tests powered by a [smart contract](https://ropsten.etherscan.io/address/0x1a62BDBFC6495d011FafA5a3c5d1c99cd202016B#code) deployed on the [Ropsten](https://ropsten.etherscan.io/) testnet.
+[DApp](https://tendto.github.io/Exam-Manager) for managing student's accademic exams and tests powered by a [smart contract](https://goerli.etherscan.io/address/0x73781629D73AFeabA98A5691DF37dC0433392995#code) deployed on the [Goerli](https://goerli.etherscan.io/) testnet.
 
 ## Installation
 
@@ -37,20 +37,20 @@ npm run compile
 
 #### Deploy contract
 
-Deploy the contract on Ropsten.
+Deploy the contract on Goerli.
 
 There are many methods to do this, for example using the online editor [Remix](https://remix.ethereum.org/).
 
-If you want to use the Hardhat library, you need to provide a Ropsten node's RPC url and a private key of an account with sufficient funds.
+If you want to use the Hardhat library, you need to provide a Goerli node's RPC url and a private key of an account with sufficient funds.
 All these settings can be specified as environment variables or in a .env file in the contracts' directory.
 
 ```env
-RPC_URL=https://ropsten.infura.io/v3/123
-ROPSTEN_SK=<secret key>
+RPC_URL=https://goerli.infura.io/v3/123
+SK=<secret key>
 ```
 
 ```bash
-npm run deploy:ropsten
+npm run deploy:goerli
 ```
 #### Run DApp
 

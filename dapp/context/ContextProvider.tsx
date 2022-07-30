@@ -1,4 +1,4 @@
-import { ChainId, Config, DAppProvider, Ropsten } from "@usedapp/core";
+import { ChainId, Config, DAppProvider, Goerli } from "@usedapp/core";
 import React from "react";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -7,9 +7,9 @@ import { UserContextProvider } from "./userContext";
 
 const config: Config = {
   readOnlyUrls: {
-    [ChainId.Ropsten]: `https://ropsten.infura.io/v3/a98b74ca6632423a815f4eab3a144dae`,
+    [ChainId.Goerli]: `https://goerli.infura.io/v3/a98b74ca6632423a815f4eab3a144dae`,
   },
-  networks: [Ropsten],
+  networks: [Goerli],
 };
 
 type ContextProviderProps = {

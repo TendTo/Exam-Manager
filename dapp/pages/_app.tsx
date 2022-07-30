@@ -3,6 +3,7 @@ import type { AppProps } from "next/app";
 import { ContextProvider } from "context";
 import { Layout, LoginGuard, SetSubjectTestsModal } from "components";
 import { useEffect } from "react";
+import Head from "next/head";
 
 function MyApp({ Component, pageProps, router }: AppProps) {
   useEffect(() => {
@@ -14,13 +15,20 @@ function MyApp({ Component, pageProps, router }: AppProps) {
   }, []);
 
   return (
-    <ContextProvider>
-      <LoginGuard router={router} />
-      <Layout>
-        <Component {...{ ...pageProps, router }} />
-      </Layout>
-      <SetSubjectTestsModal />
-    </ContextProvider>
+    <>
+      <Head>
+        <title>Exam Manager</title>
+        <meta name="viewport" content="initial-scale=1.0, width=device-width" />
+        <link rel="shortcut icon" href="favicon.svg" />
+      </Head>
+      <ContextProvider>
+        <LoginGuard router={router} />
+        <Layout>
+          <Component {...{ ...pageProps, router }} />
+        </Layout>
+        <SetSubjectTestsModal />
+      </ContextProvider>
+    </>
   );
 }
 

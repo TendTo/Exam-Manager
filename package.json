@@ -16,7 +16,7 @@
     "start": "npm run dev --prefix dapp",
     "deploy:ganache": "npm run deploy:ganache --prefix contracts",
     "deploy:multicall": "npm run deploy:multicall --prefix contracts",
-    "deploy:ropsten": "npm run deploy:ropsten --prefix contracts",
+    "deploy:public": "npm run deploy:public --prefix contracts",
     "export": "npm run export --prefix dapp",
     "update:contracts": "npm install --package-lock-only --prefix contracts",
     "update:dapp": "npm install --package-lock-only --prefix dapp"

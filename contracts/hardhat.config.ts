@@ -5,14 +5,14 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const RPC_URL = process.env.RPC_URL ?? "RPC url";
-const ROPSTEN_SK = process.env.ROPSTEN_SK ?? "";
+const SK = process.env.SK ?? "";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.9",
   networks: {
-    ropsten: {
+    public: {
       url: RPC_URL,
-      accounts: ROPSTEN_SK ? [ROPSTEN_SK] : [],
+      accounts: SK ? [SK] : [],
     },
     ganache: {
       url: "http://127.0.0.1:7545",
