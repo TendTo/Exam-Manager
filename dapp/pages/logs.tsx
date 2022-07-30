@@ -1,5 +1,5 @@
 import { useLogs } from "hooks";
-
+import config from "config/contracts.json";
 export default function Logs() {
   const { value } = useLogs();
 
@@ -8,6 +8,9 @@ export default function Logs() {
       <div className="hero-content text-center">
         <div className="max-w-6xl">
           <h1 className="text-5xl font-bold mb-2">Logs</h1>
+          <p className="text-xl" title={config.examContractAddress}>
+            {config.examContractAddress}
+          </p>
           <div className="overflow-x-auto">
             <table className="table w-full">
               <thead>
