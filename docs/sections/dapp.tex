@@ -1,0 +1,92 @@
+\section{Decentralized App: ExamManager}
+
+\subsection{Cos'è una DApp e a cosa serve}
+
+Per poter utilizzare le funzionalità di uno \gls{smart-contract} è necessario che un \gls{eoa} produca una transazione che ne invochi un metodo. \\
+In linea di principio, chiunque potrebbe avviare un proprio nodo che si interfacci con la blockchain ed utilizzare quello per interagire con lo \gls{smart-contract}.
+Tuttavia i requisiti, sia in termini di hardware che di conoscenze, sono proibitivi per la maggior parte degli utenti. \\
+Al fine di rendere quanto più semplici ed intuitive questo genere di operazioni, spesso ad uno \gls{smart-contract} viene associata una \gls{dapp}. \\
+Generalmente si tratta di applicazioni web che utilizzano le \gls{rpc-api},
+approccio che si sposa perfettamente con un client che svolge il suo compito confinato nel browser dell'utente.
+L'unico software che è necessario affiancare ad un qualsiasi browser è un wallet manager come \gls{metamask}, che è possibile installare come estensione. \\
+Il wallet manager consente di gestire i vari account impedendo inoltre al sito web visitato di accedere direttamente a dati particolarmente sensibili quali le chiavi private.
+Agli script della pagina web viene offerta un'API che permette loro di ottenere una transazione firmata, a patto che l'utente abbia dato il suo consenso esplicito per ognuna di esse.
+
+\subsection{Implementazione}
+
+L'implementazione presentata utilizza il framework NextJs \cite{soft:nextjs} e le librerie React \cite{soft:react}, DaisyUI \cite{soft:daisyui} ed ethers \cite{soft:ethers}. \\
+Il risultato è un'applicazione web consultabile da browser che permette agli utenti di connettersi ed interagire con lo \gls{smart-contract} ExamContract.
+
+\subsubsection{NextJs, React e DaisyUI}
+
+NextJs è un framework JavaScript per applicazioni React.
+Quest'ultima è la libreria più utilizzata fra tutti i tool del suo genere pensati per lo sviluppo frontend \cite{art:react-first}.
+Grazie al suo sistema di hook per la gestione dello stato, negli anni si è dimostrato un'ottimo strumento per realizzare single page applications. \\
+Sebbene il suo punto di forza sia il \gls{ssr}, NextJs permette anche l'esportazione statica dell'intero progetto.
+L'output è una collezione di file HTML, CSS e JavaScript che possono essere serviti da un web server statico. \\
+Nel nostro caso abbiamo utilizzato quello messo a disposizione da GitHub. \\
+DaisyUI è una libreria css che utilizza TailWind \cite{soft:tailwind}.
+È stata utilizzata per migliorare la user experience ed utilizzare un tema grafico coerente.
+
+\subsubsection{EtherJs}
+
+Etherjs è una libreria in grado semplificare e rendere più agevole l'utilizzo delle \gls{rpc-api} fornite dai nodi della blockchain.
+Fornisce svariate astrazioni che nascondo i dettagli implementativi dietro a chiamate di metodi di un oggetto proxy. \\
+
+\subsection{Utilizzo}
+
+La \gls{dapp} riconosce l'utente che la utilizza in base all'indirizzo pubblico che ha utilizzato per connettervisi.
+Consultato lo \gls{smart-contract}, stabilisce poi il ruolo dell'utente che può essere uno fra i seguenti:
+
+\begin{itemize}
+    \item Studente
+    \item Professore
+    \item Admin
+    \item Sconosciuto
+\end{itemize}
+
+L'interfaccia e le operazioni consentite sono diverse per ognuno di questi e riflettono fedelmente la divisione di ruoli stabilita nello \gls{smart-contract} (\autoref{sec:roles}).
+
+\subsubsection{Studente}
+
+Allo studente vengono mostrate due liste distinte.
+
+\begin{itemize}
+    \item La prima contiene i corsi per i quali ha superato almeno una prove o per i quali ha ricevuto una proposta di voto.
+    \item La seconda mostra tutti i corsi verbalizzati che ha superato con successo.
+\end{itemize}
+
+Lo studente ha la possibilità di rifiutare un voto di una prova che aveva precedentemente superato,
+con la condizione che non abbia preso parte in una prova successiva che aveva come requisito il superamento della prima. \\
+Nel momento in cui riceve una proposta di voto per la materia, lo studente può decidere se accettare o rifiutarla.
+Nel caso in cui la proposta di voto sia accettata, la materia viene verbalizzata e non può più essere modificata, prove comprese.
+Se invece la proposta di voto viene rifiutata, la proposta di voto viene invalidata, così come i risultati di tutte le prove che la compongono.
+
+\subsubsection{Professore}
+
+Il professore visualizza una lista di tutti i corsi che insegna attualmente e che è quindi autorizzato a gestire.
+Tramite le apposite sezioni è in grado di modificare le prove previste in un corso, specificando per ciascuna di esse
+
+\begin{itemize}
+    \item Il nome della prova
+    \item Il voto minimo necessario per il superamento la prova
+    \item Il tempo di validità del risultato della prova
+    \item La lista degli id dei test che lo studente deve aver superato per accedere alla prova
+    \item La lista degli id dei test che verranno invalidati nel momento in cui lo studente ha partecipato alla prova
+    \item La lista degli id dei test che verranno invalidati nel momento in cui lo studente fallisce o rifiuta la prova
+\end{itemize}
+
+Dopo una prova o a conclusione di un appello, il professore può preparare la lista dei risultati di ogni studente, identificati con una coppia matricola-voto,
+e poi inviare il tutto allo \gls{smart-contract} per la registrazione in una sola transazione.
+
+\subsubsection{Admin}
+
+L'admin ha accesso a tutte le funzioni amministrative dello \gls{smart-contract}.
+
+\begin{itemize}
+    \item Aggiungere un nuovo studente
+    \item Rimuovere uno studente
+    \item Aggiungere una nuova materia
+    \item Assegnare un professore ad una materia
+    \item Rimuovere il professore precedentemente assegnato ad una materia
+\end{itemize}

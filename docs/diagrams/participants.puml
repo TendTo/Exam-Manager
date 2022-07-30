@@ -8,9 +8,9 @@ skinparam wrapWidth 150
 !include<tupadr3/font-awesome-5/university>
 !include<material/school>
 
-participant "Student" as stu
-participant "Professor" as pro
-participant "University" as uni
-participant "Smart contract" as eth
+participant "<$user>\nStudent" as stu
+participant "<$ma_school>\nProfessor" as pro
+participant "<$university>\nUniversity" as uni
+participant "<$ethereum*.6>\nSmart contract" as eth
 
 @enduml

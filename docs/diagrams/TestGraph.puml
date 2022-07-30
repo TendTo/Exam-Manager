@@ -1,0 +1,32 @@
+@startuml TestGraph
+title Test Graph
+
+skinparam componentStyle rectangle
+
+left to right direction
+
+[Itinere 1] as i1
+[Itinere 2] as i2
+[Scritto] as s
+[Laboratorio] as l
+[Progetto] as p
+[Orale] as o
+[Esame] as e
+
+i1 <-[#Blue]- i2
+i2 <-[#Blue]- o
+
+s <-[#Blue]-- o
+
+l <-[#Blue]-- o
+
+o -[#Blue]-> e
+p -[#Blue]---> e
+
+s -[#Green]-> i1
+s -[#Green]-> i2
+
+o -[#DarkRed]-> s
+o -[#DarkRed]-> i1
+o -[#DarkRed]-> i2
+o -[#DarkRed]--> l

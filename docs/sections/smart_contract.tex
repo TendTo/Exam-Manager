@@ -1,0 +1,106 @@
+\section{Smart Contract: ExamContract}
+
+Per la realizzazione dello smart contract, è stata utilizzata la piattaforma Ethereum. In particolare, il contratto è stato scritto in Solidity, il linguaggio di programmazione orientato agli oggetti, più diffuso per l'implementazione di contratti intelligenti su varie piattaforme blockchain tra cui Ethereum stessa. In fine, il contratto è stato deployato sulla rete di test Goerli, in quanto Ropsten risulta deprecata dal 21 Gennaio e verrà disabilitata nel Q4 del 2022.\\
+\\
+Durante l'analisi dei requisiti, ci si è resi conto che nonostante l'utilizzo dell'indirizzo garantisca pseudo-anonimicità, non è particolarmente user-friendly. Per questo, si è deciso di utilizzare un'associazione tra indirizzo pubblico e matricola, permettendo l'utilizzo di quest'ultima per l'inserimento di voti da parte del prof.\\
+\\
+Nella fase di progettazione, si è deciso di separare il sorgente in due file diversi. Nel primo file, IExamContract.sol, è stata definita l'interfaccia del contratto, definendo metodi, strutture ed eventi. Questa scelta ha permesso di individuare tutte le funzionalità da implementare prima di definirne dettagli. Successivamente, è stato realizzato ExamContract.sol, un'implementazione dell'interfaccia discussa sopra.
+
+\subsection{Controlli sulle dipendenze}
+Per rendere più completo il contratto, è stata aggiunta la possibilità di definire propedeuticità a livello di materie e dipendenze tra test della stessa materia. Dall'analisi dei requisiti, sono stati individuati diversi scenari.
+Per quanto riguarda le materie, non sono state rilevate grandi difficoltà.
+Una materia può avere delle propedeuticità, ma una volta superate la materia è disponibile per il resto della carriera universitaria.
+Prendendo in esempio la propedeuticità:
+$$
+    Prog1 \rightarrow Prog2
+$$
+E' possibile definire all'interno di Prog1 una lista di materie che verranno `Sbloccate' al superamento. Per stabilire se una materia è sbloccata o meno, è stato utilizzato un contatore, inizializzato con il numero di materie propedeutiche.
+\pagebreak\\
+\\
+Con questa soluzione, internamente si avrà:
+\begin{minted}{python}
+prog1 = {counter: 0, unlocks: [prog2]}
+prog2 = {counter: 1, unlocks: []}
+# Superamento esame di prog1 per lo studente stud1
+for unlock in prog1.unlocks:
+    stud1.materia(unlock).counter -=1
+\end{minted}
+
+
+
+\subsection{Tipologie di utenti}
+\label{sec:roles}
+Sempre durante la fase di progettazione, sono state identificate tre tipologie di utenti:
+\begin{itemize}
+    \item Admin
+    \item Professore
+    \item Studente
+\end{itemize}
+
+\subsubsection{Admin}
+La prima tipologia di utente, corrisponde al creatore del contratto. Quest'ultimo ha la possibilità di definire il nome, le propedeuticità e i relativi CFU delle materie, l'associazione tra matricola ed indirizzo pubblico e la gestione della lista dei professori autorizzati alla verbalizzazione dei test e del voto finale delle singole materie. In generale, è possibile considerare questo account come la componente amministrativa dell'università, per questo motivo ci riferiremo a questo ruolo con il termine `University' nelle figure successive.
+
+\subsubsection{Professore}
+Nonostante abbia la capacità di definire le caratteristiche della materie, la definizione dei test spetta alla seconda tipologia di utente, il professore.
+Quest'ultimo, dopo aver ricevuto l'autorizzazione da parte dell'admin, può invocare la funzione \texttt{setSubjectTests()}, passando una lista di oggetti \texttt{Test} che verrà discussa successivamente. In \autoref{fig:create_subject} è possibile vedere il diagramma di flusso, con tutti gli attori coinvolti.\\
+\\
+Il professore ha inoltre la possibilità di proporre un voto finale, tramite la funzione \texttt{setSubjectResults()}, specificando come argomento una lista di coppie \texttt{<Matricola,VotoFinale>}. Il voto finale dovrà essere esplicitamente accettato dallo studente, come descritto in \autoref{fig:registerSubjectVotes}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.70\columnwidth]{img/CreateSubject.png}
+    \caption{Diagramma di flusso: `Create a subject'}
+    \label{fig:create_subject}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.85\columnwidth]{img/SubjectVote.png}
+    \caption{Diagramma di flusso: `Register subject votes'}
+    \label{fig:registerSubjectVotes}
+\end{figure}
+
+\pagebreak
+
+\subsubsection{Studente}
+L'ultima tipologia di utente progettata è lo studente. E' identificato da una matricola univoca e dal relativo indirizzo pubblico. Affinché un utente venga riconosciuto dal contratto come studente, è necessario che esista l'associazione $\textit{Indirizzo pubblico} \Rightarrow \textit{Matricola}$, aggiunta precedentemente dall'admin.
+Sostanzialmente lo studente ha accesso a tre funzioni:
+\begin{itemize}
+    \item Rifiutare il voto di un test
+    \item Accettare/Rifiutare la proposta di voto di una materia
+    \item Resettare tutti i test di una materia
+\end{itemize}
+
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\columnwidth]{img/TestVote.png}
+    \caption{Diagramma di flusso: `Register test votes'}
+    \label{fig:registerTestVotes}
+\end{figure}
+
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.75\columnwidth]{img/TestGraph.png}
+    \caption{Schema delle prove}
+    \label{fig:testGraph}
+\end{figure}
+
+%\include{diagrams/TestVote}
+\pagebreak
+Eventi
+Differenza tra uso dei logs e storage persistente nel nostro contratto
+
+Caratteristiche disponibili per i test e le materie (ResetOnTake, propedeuticità,...)
+
+Framework utilizzato: HardHat
+Generated-types per TypeScript
+Test: importanza e code-coverage raggiunta
+
+Deploy
+
+
+
+
