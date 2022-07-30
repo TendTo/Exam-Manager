@@ -19,7 +19,7 @@ function MyApp({ Component, pageProps, router }: AppProps) {
       <Head>
         <title>Exam Manager</title>
         <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        <link rel="shortcut icon" href="favicon.svg" />
+        <link rel="shortcut icon" href="favicon.png" />
       </Head>
       <ContextProvider>
         <LoginGuard router={router} />
