@@ -1,0 +1,24 @@
+@startuml CreateSubject
+title Create a subject
+
+!include ./participants.puml
+
+uni -> eth ++ : addSubject
+eth -> eth : //onlyAdmin//
+return <&check>
+
+uni -> eth ++ : //addAuthorizedProf//
+eth -> eth : //onlyAdmin//
+eth o->>? : **emit** //AuthorizedProfAdded//
+return <&check>
+
+note over pro
+    This professor is now
+    authorized to add
+    tests to the subject
+end note
+
+pro -> eth : //setSubjectTests//
+eth -> eth : //isAuthorizedProf//
+
+@enduml

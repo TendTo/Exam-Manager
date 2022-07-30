@@ -1,0 +1,16 @@
+@startuml participant
+
+hide unlinked
+skinparam wrapWidth 150
+
+!include<logos/ethereum>
+!include<office/Users/user>
+!include<tupadr3/font-awesome-5/university>
+!include<material/school>
+
+participant "Student" as stu
+participant "Professor" as pro
+participant "University" as uni
+participant "Smart contract" as eth
+
+@enduml

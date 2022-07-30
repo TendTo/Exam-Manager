@@ -1,0 +1,45 @@
+@startuml TestVote
+title Test Vote
+
+!include ./participants.puml
+
+' Register test results
+rnote over stu: Takes a test
+
+pro -> eth ++ : //registerTestResults//
+eth -> eth : //isAuthorizedProf//
+eth -> eth : //testExists//
+
+loop for each test result
+    eth -> eth : //resetTestOnTake//
+
+    alt #Pink result mark < min mark
+        eth -> eth : //failTest//
+        eth o->>? : **emit** //TestFailed//
+    else  #LightBlue check test dependencies
+        eth -> eth ++ : //checkTestDependencies//
+        loop #White for each dependency met not yet accepted
+            eth o->>? : **emit** //TestAccepted//
+        end
+        deactivate eth
+        alt #LightGreen all dependencies are met
+            eth -> eth : //passTest//
+            eth o->>? : **emit** //TestPassed//
+        else #Pink some dependencies are not met
+            eth o->>? : **emit** //MissingTestRequirements//
+        end
+    end
+end
+return <&check>
+
+' Reject test results
+rnote over stu: Wants to retake a test
+
+stu -> eth ++ : //rejectTestResult//
+eth -> eth : //testExists//
+eth -> eth : //failTest//
+eth o->>? : **emit** //TestRejected//
+
+return <&check>
+
+@enduml

@@ -1,0 +1,37 @@
+@startuml SubjectVote
+title Subject Vote
+
+!include ./participants.puml
+
+' Register subject results
+rnote over stu: Passes the final test of a subject
+
+pro -> eth ++ : //registerSubjectResults//
+eth -> eth : //isAuthorizedProf//
+
+loop for each subject result
+    eth -> eth : //checkSubjectDependencies//
+    alt #LightGreen all dependencies are met
+        eth o->>? : **emit** //SubjectPassed//
+    else #Pink some dependencies are not met
+        eth o->>? : **emit** //MissingSubjectRequrements//
+    end
+end
+return <&check>
+
+' Accept subject results
+rnote over stu: Wants to accept a subject result
+
+stu -> eth ++ : //acceptSubjectResult//
+eth o->>? : **emit** //SubjectAccepted//
+return <&check>
+
+' Reset subject
+rnote over stu: Wants to reset a subject and all its tests
+
+pro -> eth ++ : //resetSubject//
+eth -> eth : //resetSubjectResults//
+eth o->>? : **emit** //SubjectResetted//
+return <&check>
+
+@enduml
