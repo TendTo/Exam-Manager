@@ -59,7 +59,6 @@
             Questo permette ai client di invocare metodi di uno \gls{smart-contract} o di conoscere lo stato della blockchain tramite una semplice chiamata HTTP, HTTPs o websocket.
         }
 }
-
 \newglossaryentry{ssr}
 {
     name={Server-side rendering (SSR)},
@@ -74,5 +73,16 @@
 {
     name={MetaMask},
     description={MetaMask è un'estensione o un plugin per browser web che permette agli utenti di interagire facilmente con le dApp del blockchain di Ethereum.
-    Questo è possibile, perché MetaMask funge da ponte tra dApp e browser web, facilitandone l'utilizzo e il divertimento.}
+            Questo è possibile, perché MetaMask funge da ponte tra dApp e browser web, facilitandone l'utilizzo e il divertimento.}
+}
+\newglossaryentry{event-log}
+{
+    name={Event Log},
+    text={event log},
+    description={Output che uno \gls{smart-contract} può produrre con la codeword \texttt{emit}.
+            L'output prodotto viene aggiunto in maniera permanente alla blockchain e può essere consultato da chiunque. \\
+            È possibile inserire un numero arbitrario di parametri che saranno visibili nel log, e fino a tre parametri indicizzati,
+            che possono essere usati per filtrare solo i log pertinenti. \\
+            Possono rappresentare un'alternativa più economica per lo storage dei dati.
+        }
 }
