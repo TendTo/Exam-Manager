@@ -103,8 +103,8 @@ Sostanzialmente lo studente ha accesso a tre funzioni:
     \item Resettare tutti i test di una materia
 \end{itemize}
 
-Si noti che lo studente ho la la possibilità di accettare esplicitamente il voto di una prova.
-Aggiungere questa funzionalità si tradurrebbe in transazioni aggiuntive non necessarie. \\
+Si noti che lo studente non ha la possibilità di accettare esplicitamente il voto di una prova.
+Rendere disponibile questa funzionalità si tradurrebbe in transazioni aggiuntive non necessarie. \\
 Ricordando infatti che operare su uno \gls{smart-contract} richiede una spesa di gas che si traduce in un utilizzo della currency della blockchain,
 è interesse di tutti gli utenti minimizzare il numero di transazioni effettuate. \\
 Per questo motivo, è più efficiente assumere che un voto superiore a quello minimo di una prova sia automaticamente accettato,
@@ -160,7 +160,7 @@ Mettendo insieme tutti i test, è stata raggiunta una \href{https://app.codecov.
 \\
 Si ricordi però che una copertura del 100\% non assicura l'assenza di errori imprevisti, ma indica unicamente che, durante i test,
 tutte le righe di codice sono state toccate almeno una volta dell'esecuzione.
-La protezione da eventuali bug e regressioni è assicurata solo rispetto ai casi che sono stati effettivamente testati. \\
+La protezione da eventuali bug e regressioni è assicurata solo rispetto ai casi che sono stati effettivamente testati.\\
 \\
 Segue qualche esempio di test utilizzato:
 \begin{minted}{typescript}
